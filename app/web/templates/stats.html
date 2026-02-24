@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics - Bluesky Social Bot</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #0f0f13;
+            color: #e4e4e7;
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background: #1a1a1f;
+            border-bottom: 1px solid #2c2c35;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-container h1 {
+            color: #3b82f6;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links a {
+            color: #9ca3af;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            margin-left: 0.5rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background: #2c2c35;
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: #1a1a1f;
+            border: 1px solid #2c2c35;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            border-color: #3b82f6;
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-label {
+            color: #9ca3af;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: #ffffff;
+            line-height: 1.2;
+        }
+
+        .stat-trend {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .trend-up { color: #10b981; }
+        .trend-down { color: #ef4444; }
+
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: #1a1a1f;
+            border: 1px solid #2c2c35;
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .chart-header h3 {
+            color: #ffffff;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .chart-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chart-control-btn {
+            background: #2c2c35;
+            border: 1px solid #3b3b45;
+            color: #9ca3af;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .chart-control-btn:hover,
+        .chart-control-btn.active {
+            background: #3b82f6;
+            border-color: #2563eb;
+            color: #ffffff;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        /* Tables Section */
+        .tables-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .table-card {
+            background: #1a1a1f;
+            border: 1px solid #2c2c35;
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .table-card h3 {
+            color: #ffffff;
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 0.75rem;
+            background: #2c2c35;
+            color: #e4e4e7;
+            font-weight: 500;
+            font-size: 0.875rem;
+            position: sticky;
+            top: 0;
+        }
+
+        td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #2c2c35;
+            color: #9ca3af;
+            font-size: 0.875rem;
+        }
+
+        tr:hover td {
+            background: #2c2c35;
+            color: #ffffff;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background: #065f46;
+            color: #d1fae5;
+        }
+
+        .badge-warning {
+            background: #92400e;
+            color: #fef3c7;
+        }
+
+        .time-filter {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .time-filter-btn {
+            background: #2c2c35;
+            border: 1px solid #3b3b45;
+            color: #9ca3af;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .time-filter-btn:hover,
+        .time-filter-btn.active {
+            background: #3b82f6;
+            border-color: #2563eb;
+            color: #ffffff;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #9ca3af;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid #3b82f6;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 0.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1>🤖 Bluesky Social Bot</h1>
+            <div class="nav-links">
+                <a href="/">Dashboard</a>
+                <a href="/settings">Settings</a>
+                <a href="/stats" class="active">Statistics</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Time Filter -->
+        <div class="time-filter">
+            <button class="time-filter-btn" onclick="loadStats(7)">Last 7 Days</button>
+            <button class="time-filter-btn active" onclick="loadStats(30)">Last 30 Days</button>
+            <button class="time-filter-btn" onclick="loadStats(90)">Last 90 Days</button>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid" id="statsCards">
+            <div class="stat-card">
+                <div class="stat-icon">❤️</div>
+                <div class="stat-label">Total Likes</div>
+                <div class="stat-value" id="totalLikes">-</div>
+                <div class="stat-trend" id="likesTrend"></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">➕</div>
+                <div class="stat-label">Total Follows</div>
+                <div class="stat-value" id="totalFollows">-</div>
+                <div class="stat-trend" id="followsTrend"></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-label">Users Checked</div>
+                <div class="stat-value" id="totalUsers">-</div>
+                <div class="stat-trend" id="usersTrend"></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📝</div>
+                <div class="stat-label">Posts Found</div>
+                <div class="stat-value" id="totalPosts">-</div>
+                <div class="stat-trend" id="postsTrend"></div>
+            </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+            <!-- Activity Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3>Daily Activity</h3>
+                    <div class="chart-controls">
+                        <button class="chart-control-btn" onclick="toggleDataset('likes')">❤️ Likes</button>
+                        <button class="chart-control-btn" onclick="toggleDataset('follows')">➕ Follows</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="activityChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Cumulative Growth Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3>Cumulative Growth</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="growthChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tables Grid -->
+        <div class="tables-grid">
+            <!-- Recent Likes -->
+            <div class="table-card">
+                <h3>
+                    Recent Likes
+                    <span class="badge badge-success">Live</span>
+                </h3>
+                <div class="table-container">
+                    <table id="recentLikesTable">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>User</th>
+                                <th>Post Preview</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentLikesBody">
+                            <tr><td colspan="3" class="loading">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Top Followed Users -->
+            <div class="table-card">
+                <h3>
+                    Recently Followed
+                    <span class="badge badge-warning">Today</span>
+                </h3>
+                <div class="table-container">
+                    <table id="followedUsersTable">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>User</th>
+                                <th>Handle</th>
+                            </tr>
+                        </thead>
+                        <tbody id="followedUsersBody">
+                            <tr><td colspan="3" class="loading">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Chart instances
+        let activityChart = null;
+        let growthChart = null;
+        
+        // Current data
+        let currentData = [];
+        let currentDays = 30;
+        
+        // Dataset visibility
+        let visibleDatasets = {
+            likes: true,
+            follows: true
+        };
+
+        // Load stats on page load
+        document.addEventListener('DOMContentLoaded', () => loadStats(30));
+
+        // Load statistics
+        function loadStats(days) {
+            currentDays = days;
+            
+            // Update active button
+            document.querySelectorAll('.time-filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.includes(days)) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Show loading states
+            document.getElementById('totalLikes').textContent = '...';
+            document.getElementById('totalFollows').textContent = '...';
+            document.getElementById('totalUsers').textContent = '...';
+            document.getElementById('totalPosts').textContent = '...';
+
+            fetch(`/api/stats/historical?days=${days}`)
+                .then(res => res.json())
+                .then(data => {
+                    currentData = data;
+                    updateStatsCards(data);
+                    updateCharts(data);
+                })
+                .catch(error => {
+                    console.error('Error loading stats:', error);
+                    document.getElementById('totalLikes').textContent = 'Error';
+                });
+
+            // Load recent likes
+            fetch('/api/recent-likes?limit=20')
+                .then(res => res.json())
+                .then(data => updateRecentLikes(data))
+                .catch(error => console.error('Error loading recent likes:', error));
+
+            // Load followed users
+            fetch('/api/followed-users')
+                .then(res => res.json())
+                .then(data => updateFollowedUsers(data))
+                .catch(error => console.error('Error loading followed users:', error));
+        }
+
+        // Update stats cards
+        function updateStatsCards(data) {
+            // Calculate totals
+            const totals = data.reduce((acc, day) => {
+                acc.likes += day.likes || 0;
+                acc.follows += day.follows || 0;
+                acc.users += day.users_checked || 0;
+                acc.posts += day.posts_found || 0;
+                return acc;
+            }, { likes: 0, follows: 0, users: 0, posts: 0 });
+
+            // Calculate trends (compare last 7 days to previous 7 days)
+            const last7Days = data.slice(0, 7);
+            const prev7Days = data.slice(7, 14);
+            
+            const last7Likes = last7Days.reduce((sum, d) => sum + (d.likes || 0), 0);
+            const prev7Likes = prev7Days.reduce((sum, d) => sum + (d.likes || 0), 0);
+            const likesTrend = prev7Likes > 0 ? ((last7Likes - prev7Likes) / prev7Likes * 100).toFixed(1) : 0;
+
+            const last7Follows = last7Days.reduce((sum, d) => sum + (d.follows || 0), 0);
+            const prev7Follows = prev7Days.reduce((sum, d) => sum + (d.follows || 0), 0);
+            const followsTrend = prev7Follows > 0 ? ((last7Follows - prev7Follows) / prev7Follows * 100).toFixed(1) : 0;
+
+            // Update DOM
+            document.getElementById('totalLikes').textContent = totals.likes.toLocaleString();
+            document.getElementById('totalFollows').textContent = totals.follows.toLocaleString();
+            document.getElementById('totalUsers').textContent = totals.users.toLocaleString();
+            document.getElementById('totalPosts').textContent = totals.posts.toLocaleString();
+
+            // Update trends
+            updateTrend('likesTrend', likesTrend);
+            updateTrend('followsTrend', followsTrend);
+        }
+
+        function updateTrend(elementId, value) {
+            const element = document.getElementById(elementId);
+            if (value > 0) {
+                element.innerHTML = `↑ ${value}% vs previous week`;
+                element.className = 'stat-trend trend-up';
+            } else if (value < 0) {
+                element.innerHTML = `↓ ${Math.abs(value)}% vs previous week`;
+                element.className = 'stat-trend trend-down';
+            } else {
+                element.innerHTML = '→ 0% vs previous week';
+                element.className = 'stat-trend';
+            }
+        }
+
+        // Update charts
+        function updateCharts(data) {
+            const dates = data.map(d => d.date).reverse();
+            const likes = data.map(d => d.likes || 0).reverse();
+            const follows = data.map(d => d.follows || 0).reverse();
+            
+            // Calculate cumulative
+            let cumulativeLikes = 0;
+            let cumulativeFollows = 0;
+            const cumLikes = data.map(d => {
+                cumulativeLikes += d.likes || 0;
+                return cumulativeLikes;
+            }).reverse();
+            const cumFollows = data.map(d => {
+                cumulativeFollows += d.follows || 0;
+                return cumulativeFollows;
+            }).reverse();
+
+            // Activity Chart
+            if (activityChart) activityChart.destroy();
+            
+            const activityCtx = document.getElementById('activityChart').getContext('2d');
+            activityChart = new Chart(activityCtx, {
+                type: 'bar',
+                data: {
+                    labels: dates,
+                    datasets: [
+                        {
+                            label: 'Likes',
+                            data: likes,
+                            backgroundColor: '#3b82f6',
+                            borderRadius: 4,
+                            barPercentage: 0.7,
+                            hidden: !visibleDatasets.likes
+                        },
+                        {
+                            label: 'Follows',
+                            data: follows,
+                            backgroundColor: '#22c55e',
+                            borderRadius: 4,
+                            barPercentage: 0.7,
+                            hidden: !visibleDatasets.follows
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: '#1a1a1f',
+                            titleColor: '#ffffff',
+                            bodyColor: '#9ca3af',
+                            borderColor: '#2c2c35',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#9ca3af',
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: '#2c2c35',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#9ca3af',
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Growth Chart
+            if (growthChart) growthChart.destroy();
+            
+            const growthCtx = document.getElementById('growthChart').getContext('2d');
+            growthChart = new Chart(growthCtx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [
+                        {
+                            label: 'Total Likes',
+                            data: cumLikes,
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Total Follows',
+                            data: cumFollows,
+                            borderColor: '#22c55e',
+                            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#e4e4e7',
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: '#1a1a1f',
+                            titleColor: '#ffffff',
+                            bodyColor: '#9ca3af',
+                            borderColor: '#2c2c35',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#9ca3af',
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: '#2c2c35',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#9ca3af'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Toggle dataset visibility
+        function toggleDataset(dataset) {
+            visibleDatasets[dataset] = !visibleDatasets[dataset];
+            
+            if (activityChart) {
+                const datasetIndex = dataset === 'likes' ? 0 : 1;
+                const meta = activityChart.getDatasetMeta(datasetIndex);
+                meta.hidden = !visibleDatasets[dataset];
+                activityChart.update();
+            }
+        }
+
+        // Update recent likes table
+        function updateRecentLikes(likes) {
+            const tbody = document.getElementById('recentLikesBody');
+            
+            if (!likes || likes.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align: center;">No recent likes</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = likes.map(like => {
+                const date = new Date(like.liked_at);
+                const timeAgo = getTimeAgo(date);
+                const postPreview = like.post_data ? 
+                    JSON.parse(like.post_data).text?.substring(0, 50) + '...' : 
+                    'No preview';
+                
+                return `
+                    <tr>
+                        <td>${timeAgo}</td>
+                        <td>@${like.user_handle || 'unknown'}</td>
+                        <td>${postPreview}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Update followed users table
+        function updateFollowedUsers(users) {
+            const tbody = document.getElementById('followedUsersBody');
+            
+            if (!users || users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align: center;">No followed users</td></tr>';
+                return;
+            }
+
+            // Sort by most recent first and take top 20
+            const recentUsers = users
+                .sort((a, b) => new Date(b.followed_at) - new Date(a.followed_at))
+                .slice(0, 20);
+
+            tbody.innerHTML = recentUsers.map(user => {
+                const date = new Date(user.followed_at);
+                const timeAgo = getTimeAgo(date);
+                
+                return `
+                    <tr>
+                        <td>${timeAgo}</td>
+                        <td>${user.display_name || 'Unknown'}</td>
+                        <td>@${user.handle}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Helper: Get time ago string
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            
+            let interval = seconds / 31536000;
+            if (interval > 1) return Math.floor(interval) + ' years ago';
+            
+            interval = seconds / 2592000;
+            if (interval > 1) return Math.floor(interval) + ' months ago';
+            
+            interval = seconds / 86400;
+            if (interval > 1) return Math.floor(interval) + ' days ago';
+            
+            interval = seconds / 3600;
+            if (interval > 1) return Math.floor(interval) + ' hours ago';
+            
+            interval = seconds / 60;
+            if (interval > 1) return Math.floor(interval) + ' minutes ago';
+            
+            return Math.floor(seconds) + ' seconds ago';
+        }
+
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            loadStats(currentDays);
+        }, 30000);
+    </script>
+</body>
+</html>

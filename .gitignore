@@ -1,0 +1,4 @@
+.env
+app/config.py
+app/__pycache__/database.cpython-311.pyc
+data/bluesky_bot.db

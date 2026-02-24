@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Bluesky Social Bot</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #0f0f13;
+            color: #e4e4e7;
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background: #1a1a1f;
+            border-bottom: 1px solid #2c2c35;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-container h1 {
+            color: #3b82f6;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links a {
+            color: #9ca3af;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            margin-left: 0.5rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background: #2c2c35;
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        /* Status Banner */
+        .status-banner {
+            background: linear-gradient(135deg, #1a1a1f 0%, #2c2c35 100%);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #3b3b45;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .status-info {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.running {
+            background: #10b981;
+            box-shadow: 0 0 10px #10b981;
+        }
+
+        .status-dot.paused {
+            background: #f59e0b;
+            box-shadow: 0 0 10px #f59e0b;
+        }
+
+        .status-dot.stopped {
+            background: #ef4444;
+            box-shadow: 0 0 10px #ef4444;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .status-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .status-text.running { color: #10b981; }
+        .status-text.paused { color: #f59e0b; }
+        .status-text.stopped { color: #ef4444; }
+
+        .status-time {
+            display: flex;
+            gap: 2rem;
+            color: #9ca3af;
+        }
+
+        .time-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .time-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .time-value {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #e4e4e7;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .btn-success { 
+            background: #10b981; 
+            color: white; 
+        }
+        .btn-success:hover { background: #059669; }
+
+        .btn-danger { 
+            background: #ef4444; 
+            color: white; 
+        }
+        .btn-danger:hover { background: #dc2626; }
+
+        .btn-warning { 
+            background: #f59e0b; 
+            color: white; 
+        }
+        .btn-warning:hover { background: #d97706; }
+
+        .btn-primary { 
+            background: #3b82f6; 
+            color: white; 
+        }
+        .btn-primary:hover { background: #2563eb; }
+
+        .btn-secondary { 
+            background: #2c2c35; 
+            color: #e4e4e7; 
+            border: 1px solid #3b3b45;
+        }
+        .btn-secondary:hover { 
+            background: #3b3b45; 
+            border-color: #4b4b55;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: #1a1a1f;
+            border: 1px solid #2c2c35;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            border-color: #3b82f6;
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-label {
+            color: #9ca3af;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1.2;
+            margin: 0.25rem 0;
+        }
+
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.875rem;
+        }
+
+        .trend-up { color: #10b981; }
+        .trend-down { color: #ef4444; }
+
+        /* Progress Bar */
+        .progress-container {
+            margin-top: 1rem;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            color: #9ca3af;
+            font-size: 0.75rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #2c2c35;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: #1a1a1f;
+            border: 1px solid #2c2c35;
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .chart-header h3 {
+            color: #ffffff;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        /* Activity Section */
+        .activity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .activity-card {
+            background: #1a1a1f;
+            border: 1px solid #2c2c35;
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .activity-header h3 {
+            color: #ffffff;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .badge {
+            background: #2c2c35;
+            color: #9ca3af;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            border: 1px solid #3b3b45;
+        }
+
+        .activity-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #2c2c35;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .activity-user {
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-handle {
+            color: #9ca3af;
+            font-size: 0.75rem;
+        }
+
+        .activity-time {
+            color: #6b7280;
+            font-size: 0.75rem;
+            white-space: nowrap;
+        }
+
+        .activity-post {
+            color: #9ca3af;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #9ca3af;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid #3b82f6;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 0.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .status-banner {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+            
+            .status-info {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+            
+            .control-buttons {
+                width: 100%;
+                justify-content: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-container">
+        <h1>🤖 Bluesky Social Bot</h1>
+        <div class="nav-links">
+            <a href="/" class="active">Dashboard</a>
+            <a href="/settings">Settings</a>
+            <a href="/stats">Statistics</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <!-- Status Banner -->
+    <div class="status-banner">
+        <div class="status-info">
+            <div class="status-indicator">
+                <div class="status-dot {{ 'running' if status.is_running and not paused else 'paused' if paused else 'stopped' }}"></div>
+                <span class="status-text {{ 'running' if status.is_running and not paused else 'paused' if paused else 'stopped' }}">
+                    {{ 'Running' if status.is_running and not paused else 'Paused' if paused else 'Stopped' }}
+                </span>
+            </div>
+            <div class="status-time">
+                <div class="time-item">
+                    <span class="time-label">Last Run</span>
+                    <span class="time-value">{{ status.last_run or 'Never' }}</span>
+                </div>
+                <div class="time-item">
+                    <span class="time-label">Next Run</span>
+                    <span class="time-value">{{ status.next_run or 'Not scheduled' }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="control-buttons">
+            <button onclick="controlBot('start')" class="btn-success">
+                <span>▶</span> Start
+            </button>
+            <button onclick="controlBot('pause')" class="btn-warning">
+                <span>⏸</span> Pause
+            </button>
+            <button onclick="controlBot('resume')" class="btn-primary">
+                <span>▶</span> Resume
+            </button>
+            <button onclick="controlBot('stop')" class="btn-danger">
+                <span>⏹</span> Stop
+            </button>
+            <button onclick="runNow()" class="btn-secondary">
+                <span>⚡</span> Run Now
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">❤️</div>
+            <div class="stat-label">Likes Today</div>
+            <div class="stat-value">{{ stats.likes }}</div>
+            <div class="stat-trend" id="likesTrend"></div>
+            <div class="progress-container">
+                <div class="progress-header">
+                    <span>Daily Limit</span>
+                    <span>{{ stats.likes }}/{{ config.MAX_LIKES_PER_DAY }}</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ (stats.likes / config.MAX_LIKES_PER_DAY * 100) | round }}%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">➕</div>
+            <div class="stat-label">Follows Today</div>
+            <div class="stat-value">{{ followed_today }}</div>
+            <div class="stat-trend" id="followsTrend"></div>
+            <div class="progress-container">
+                <div class="progress-header">
+                    <span>Daily Limit</span>
+                    <span>{{ followed_today }}/{{ config.MAX_FOLLOWS_PER_DAY if config.MAX_FOLLOWS_PER_DAY > 0 else '∞' }}</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ (followed_today / config.MAX_FOLLOWS_PER_DAY * 100) | round if config.MAX_FOLLOWS_PER_DAY > 0 else 0 }}%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-label">Users Checked</div>
+            <div class="stat-value">{{ stats.users_checked }}</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">📝</div>
+            <div class="stat-label">Posts Found</div>
+            <div class="stat-value">{{ stats.posts_found }}</div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-grid">
+        <!-- Activity Chart -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Last 7 Days Activity</h3>
+                <div class="badge">Updated daily</div>
+            </div>
+            <div class="chart-container">
+                <canvas id="activityChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Keyword Distribution -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Active Keywords</h3>
+                <div class="badge">{{ keywords_count }} total</div>
+            </div>
+            <div class="chart-container">
+                <canvas id="keywordsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity Feeds -->
+    <div class="activity-grid">
+        <!-- Recent Likes -->
+        <div class="activity-card">
+            <div class="activity-header">
+                <h3>Recent Likes</h3>
+                <span class="badge">Last 10</span>
+            </div>
+            <div class="activity-list" id="recentLikesList">
+                {% for like in recent_likes %}
+                <div class="activity-item">
+                    <div class="activity-avatar">
+                        {{ like.user_handle[0] | upper if like.user_handle else '?' }}
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-user">{{ like.user_handle }}</div>
+                        <div class="activity-time">{{ like.liked_at[:16] }}</div>
+                    </div>
+                    <div class="activity-post">
+                        {% if like.post_data %}
+                            {{ like.post_data.text[:30] + '...' if like.post_data.text else 'No text' }}
+                        {% else %}
+                            Liked a post
+                        {% endif %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="activity-item">
+                    <div class="activity-content">
+                        <div class="activity-user">No activity yet</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Recently Followed -->
+        <div class="activity-card">
+            <div class="activity-header">
+                <h3>Recently Followed</h3>
+                <span class="badge">Today</span>
+            </div>
+            <div class="activity-list" id="recentFollowsList">
+                <!-- Will be populated via API -->
+                <div class="loading">Loading...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Bot control functions
+    function controlBot(action) {
+        fetch(`/api/bot/${action}`, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                } else {
+                    // Show success message
+                    showNotification(data.message || `${action} successful`, 'success');
+                    // Reload after short delay
+                    setTimeout(() => location.reload(), 1000);
+                }
+            })
+            .catch(error => {
+                alert('Error: ' + error);
+            });
+    }
+
+    function runNow() {
+        fetch('/api/bot/run-now', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                showNotification('Bot run started! Check back in a few minutes.', 'success');
+            })
+            .catch(error => {
+                alert('Error: ' + error);
+            });
+    }
+
+    // Show notification
+    function showNotification(message, type) {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'success' ? '#10b981' : '#ef4444'};
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        `;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        // Remove after 3 seconds
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+
+        // Add animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    // Load activity chart
+    const ctx = document.getElementById('activityChart').getContext('2d');
+    
+    fetch('/api/stats/historical?days=7')
+        .then(res => res.json())
+        .then(data => {
+            // Calculate trends
+            if (data.length >= 2) {
+                const lastWeek = data[data.length - 1]?.likes || 0;
+                const prevWeek = data[data.length - 2]?.likes || 0;
+                const likesTrend = prevWeek > 0 ? ((lastWeek - prevWeek) / prevWeek * 100).toFixed(1) : 0;
+                
+                document.getElementById('likesTrend').innerHTML = likesTrend > 0 ? 
+                    `<span class="trend-up">↑ ${likesTrend}% vs yesterday</span>` : 
+                    `<span class="trend-down">↓ ${Math.abs(likesTrend)}% vs yesterday</span>`;
+            }
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(d => d.date.slice(5)),
+                    datasets: [
+                        {
+                            label: 'Likes',
+                            data: data.map(d => d.likes),
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#3b82f6',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: '#1a1a1f',
+                            titleColor: '#ffffff',
+                            bodyColor: '#9ca3af',
+                            borderColor: '#2c2c35',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#9ca3af'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: '#2c2c35',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#9ca3af',
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+    // Load keywords chart
+    fetch('/api/keywords')
+        .then(res => res.json())
+        .then(keywords => {
+            const activeCount = keywords.filter(k => k.active).length;
+            const inactiveCount = keywords.length - activeCount;
+            
+            const keywordsCtx = document.getElementById('keywordsChart').getContext('2d');
+            new Chart(keywordsCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Active', 'Inactive'],
+                    datasets: [{
+                        data: [activeCount, inactiveCount],
+                        backgroundColor: ['#10b981', '#2c2c35'],
+                        borderColor: ['#059669', '#3b3b45'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#e4e4e7',
+                                padding: 20,
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+    // Load recent follows
+    fetch('/api/followed-users')
+        .then(res => res.json())
+        .then(users => {
+            const recentFollows = users
+                .sort((a, b) => new Date(b.followed_at) - new Date(a.followed_at))
+                .slice(0, 10);
+            
+            const list = document.getElementById('recentFollowsList');
+            
+            if (recentFollows.length === 0) {
+                list.innerHTML = '<div class="activity-item"><div class="activity-content">No follows yet</div></div>';
+                return;
+            }
+            
+            list.innerHTML = recentFollows.map(user => `
+                <div class="activity-item">
+                    <div class="activity-avatar">
+                        ${(user.display_name?.[0] || user.handle?.[0] || '?')}
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-user">${user.display_name || user.handle}</div>
+                        <div class="activity-handle">@${user.handle}</div>
+                    </div>
+                    <div class="activity-time">${new Date(user.followed_at).toLocaleString()}</div>
+                </div>
+            `).join('');
+        })
+        .catch(error => {
+            document.getElementById('recentFollowsList').innerHTML = '<div class="activity-item">Error loading follows</div>';
+        });
+
+    // Auto-refresh every 30 seconds
+    setInterval(() => {
+        // Refresh stats
+        fetch('/api/stats/today')
+            .then(res => res.json())
+            .then(stats => {
+                // Update stat values without full page reload
+                document.querySelector('.stat-card:first-child .stat-value').textContent = stats.likes;
+            });
+    }, 30000);
+</script>
+
+</body>
+</html>

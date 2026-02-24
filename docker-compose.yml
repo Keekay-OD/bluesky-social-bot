@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  bluesky-bot:
+    build: .
+    container_name: bluesky-social-bot
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - BLUESKY_HANDLE=${BLUESKY_HANDLE}
+      - BLUESKY_PASSWORD=${BLUESKY_PASSWORD}
+      - FLASK_ENV=production
+      - FLASK_APP=web/app.py
+    volumes:
+      - ./data:/data
+      - ./app:/app
+    env_file:
+      - .env
+    networks:
+      - bot-network
+
+networks:
+  bot-network:
+    driver: bridge

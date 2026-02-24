@@ -1,0 +1,6 @@
+atproto>=0.0.10
+flask>=2.3.0
+flask-sqlalchemy>=3.0.0
+python-dotenv>=1.0.0
+requests>=2.31.0
+werkzeug>=2.3.0
