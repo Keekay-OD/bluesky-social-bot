@@ -174,40 +174,9 @@ bluesky-social-bot/
 └── README.md                      # This file
 ```
 
-## ☁️ Hosting Recommendations
 
-### Easy Deployment Options
 
-#### 1. **Railway.app** (Simplest) 🚂
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new)
-
-- **Free tier**: 500 hours/month ($5 credit)
-- **Pros**: One-click deploy, automatic HTTPS, easy scaling
-- **Setup**: Connect GitHub repo → Add environment variables → Deploy
-
-#### 2. **Fly.io** (Recommended) 🪰
-[![Deploy on Fly](https://fly.io/static/images/badge.svg)](https://fly.io/apps)
-
-- **Free tier**: 3 shared VMs, 3GB persistent storage
-- **Pros**: Global CDN, easy CLI deployment, great for Docker
-- **Setup**: Install flyctl → `fly launch` → `fly deploy`
-
-#### 3. **Render.com** (Reliable) 🎯
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
-
-- **Free tier**: 750 hours/month, 512MB RAM
-- **Pros**: Auto-deploy from GitHub, SSL certificates
-- **Setup**: Connect repo → Select "Docker" environment → Deploy
-
-#### 4. **Hetzner Cloud** (Budget) 💰
-- **Cost**: €3.29/month for CPX11 (2 vCPU, 2GB RAM)
-- **Pros**: Cheap dedicated VPS, full control
-- **Setup**: Create VPS → Install Docker → Run container
-
-#### 5. **Oracle Cloud Always Free** (Best Free) 🆓
-- **Free tier**: 4 ARM cores, 24GB RAM (forever!)
-- **Pros**: Insane free resources, permanent
-- **Setup**: Sign up → Create VM → Install Docker
+## ☁️ Easy Deployment Options
 
 ### Quick Deploy with Docker (Any VPS)
 
@@ -246,7 +215,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📧 Contact
 
-Your Name - [@bikes.keekay.cloud](https://bsky.app/profile/bikes.keekay.cloud) - bikes@keekay.cloud
+Keekay - [@bikes.keekay.cloud](https://bsky.app/profile/bikes.keekay.cloud) - bikes@keekay.cloud
 
 Project Link: [https://github.com/Keekay-OD/bluesky-social-bot](https://github.com/Keekay-OD/bluesky-social-bot)
 
