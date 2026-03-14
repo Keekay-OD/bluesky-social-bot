@@ -15,6 +15,7 @@ class BlueskyBot:
         self.running = False
         self.thread = None
         self.paused = False
+        self.stop_event = threading.Event()
         self.followed_today = 0
         self.likes_today = 0
         self.reposts_today = 0
@@ -297,7 +298,7 @@ class BlueskyBot:
                     break
                 
                 # Don't like the same post we already processed
-                if post.uri == post.uri:  # This needs to be fixed - we need to track which posts we've seen
+                if self.db.was_liked(post.uri):
                     continue
                 
                 # Extract post text
@@ -368,7 +369,8 @@ class BlueskyBot:
         # Search for posts with keywords
         print(f"\n🔎 Searching Bluesky for posts with keywords...")
         posts = self.search_posts_by_keywords(keywords)
-        
+        self.db.update_daily_stats(posts_found=len(posts))
+
         if not posts:
             print("❌ No posts found with the given keywords")
             return
@@ -408,6 +410,8 @@ class BlueskyBot:
                 print(f"⏱️ Waiting {delay} seconds before next post...")
                 time.sleep(delay)
 
+
+        self.db.update_daily_stats(users_checked=1)
         # Update bot status
         self.db.update_bot_status(
             last_run=datetime.now(),
@@ -432,24 +436,30 @@ class BlueskyBot:
     # THREAD LOOP
     # -------------------------------------------------
     def _run_loop(self):
-        while self.running:
+
+        while not self.stop_event.is_set():
+
             try:
+
                 if not self.paused:
                     self.run_once()
-                    
-                    # Sleep until next check
-                    next_run = datetime.now() + timedelta(seconds=Config.CHECK_INTERVAL)
-                    print(f"\n💤 Sleeping for {Config.CHECK_INTERVAL} seconds until {next_run}")
-                    print(f"{'='*60}\n")
-                    time.sleep(Config.CHECK_INTERVAL)
+
+                    print(f"\n💤 Sleeping {Config.CHECK_INTERVAL}s")
+
+                    if self.stop_event.wait(Config.CHECK_INTERVAL):
+                        break
+
                 else:
-                    print("⏸️ Bot is paused, checking again in 30 seconds...")
-                    time.sleep(30)
-                    
+                    print("⏸️ Bot paused")
+
+                    if self.stop_event.wait(30):
+                        break
+
             except Exception as e:
                 print(f"⚠️ Loop error: {e}")
-                print("🔄 Waiting 5 minutes before retry...")
-                time.sleep(300)
+
+                if self.stop_event.wait(300):
+                    break
 
     # -------------------------------------------------
     # CONTROL
@@ -461,6 +471,7 @@ class BlueskyBot:
 
         self.running = True
         self.paused = False
+        self.stop_event.clear()
 
         self.thread = threading.Thread(target=self._run_loop)
         self.thread.daemon = True
@@ -470,9 +481,16 @@ class BlueskyBot:
         self.db.update_bot_status(is_running=True)
 
     def stop(self):
+        print("⏹️ Stopping bot...")
+
         self.running = False
         self.paused = False
-        print("⏹️ Bot stopped")
+        self.stop_event.set()
+
+        if self.thread and self.thread.is_alive():
+            self.thread.join(timeout=5)
+
+        print("✅ Bot fully stopped")
         self.db.update_bot_status(is_running=False)
 
     def pause(self):

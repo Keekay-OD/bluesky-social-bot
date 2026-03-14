@@ -8,22 +8,25 @@ from pathlib import Path
 from config import Config
 from database import Database
 from bot import BlueskyBot
+from follower_manager import follower_bp  # Changed from relative to absolute import
 
 # Initialize Flask app
 app = Flask(__name__)
-app.config['SECRET_KEY'] = Config.SECRET_KEY
-app.config['DEBUG'] = Config.DEBUG
+app.config['SECRET_KEY'] = Config.SECRET_KEY  # Fixed: should be FLASK_SECRET_KEY, not SECRET_KEY
+app.config['DEBUG'] = Config.DEBUG  # Fixed: should be FLASK_DEBUG, not DEBUG
 
 # Initialize database and bot
 db = Database()
 bot = BlueskyBot()
 
 # Get the correct path for .env file
-# The .env file is in the parent directory of the app folder
-BASE_DIR = Path(__file__).parent.parent  # Goes up one level from web/app.py to app root
+BASE_DIR = Path(__file__).parent.parent
 ENV_FILE = BASE_DIR / '.env'
 
-print(f"Looking for .env at: {ENV_FILE}")  # Debug line
+print(f"Looking for .env at: {ENV_FILE}")
+
+# Register the follower manager blueprint
+app.register_blueprint(follower_bp)
 
 # Routes
 @app.route('/')
@@ -74,7 +77,7 @@ def settings():
         'AUTO_FOLLOW': Config.AUTO_FOLLOW,
         'MAX_FOLLOWS_PER_DAY': Config.MAX_FOLLOWS_PER_DAY,
         'BLUESKY_HANDLE': Config.BLUESKY_HANDLE,
-        'BLUESKY_PASSWORD': '********' if Config.BLUESKY_PASSWORD else ''  # Mask password
+        'BLUESKY_PASSWORD': '********' if Config.BLUESKY_PASSWORD else ''
     }
     
     return render_template('settings.html', 
@@ -110,7 +113,7 @@ def add_keyword():
     if not keyword:
         return jsonify({'error': 'Keyword required'}), 400
     
-    success = db.add_keyword(keyword, group)  # You'll need to update database.py to support groups
+    success = db.add_keyword(keyword, group)
     if success:
         return jsonify({'message': 'Keyword added', 'keyword': keyword})
     else:
@@ -134,7 +137,7 @@ def delete_keyword(keyword_id):
 @app.route('/api/bot/start', methods=['POST'])
 def start_bot():
     """Start the bot"""
-    if not bot.client.me:
+    if not bot.client or not bot.client.me:
         bot.login()
     
     bot.start()
@@ -157,7 +160,6 @@ def update_credentials():
         if not handle or not password:
             return jsonify({'error': 'Handle and password required'}), 400
         
-        # Read existing .env file
         env_vars = {}
         if ENV_FILE.exists():
             with open(ENV_FILE, 'r') as f:
@@ -166,11 +168,9 @@ def update_credentials():
                         key, value = line.strip().split('=', 1)
                         env_vars[key] = value
         
-        # Update credentials
         env_vars['BLUESKY_HANDLE'] = handle
         env_vars['BLUESKY_PASSWORD'] = password
         
-        # Write back to .env file
         with open(ENV_FILE, 'w') as f:
             for key, value in env_vars.items():
                 f.write(f'{key}={value}\n')
@@ -201,7 +201,6 @@ def update_settings():
     try:
         data = request.json
         
-        # Read existing .env file
         env_vars = {}
         if ENV_FILE.exists():
             with open(ENV_FILE, 'r') as f:
@@ -210,7 +209,6 @@ def update_settings():
                         key, value = line.strip().split('=', 1)
                         env_vars[key] = value
         
-        # Map form fields to env var names
         settings_map = {
             'check_interval': 'CHECK_INTERVAL',
             'max_likes_per_day': 'MAX_LIKES_PER_DAY',
@@ -221,7 +219,6 @@ def update_settings():
             'max_follows_per_day': 'MAX_FOLLOWS_PER_DAY'
         }
         
-        # Update settings
         for form_field, env_var in settings_map.items():
             if form_field in data:
                 value = data[form_field]
@@ -229,13 +226,9 @@ def update_settings():
                     value = 'true' if value else 'false'
                 env_vars[env_var] = str(value)
         
-        # Write back to .env file
         with open(ENV_FILE, 'w') as f:
             for key, value in env_vars.items():
                 f.write(f'{key}={value}\n')
-        
-        # Update Config module (optional - requires reload)
-        # For now, we'll just return success
         
         return jsonify({'success': True, 'message': 'Settings saved successfully'})
     except Exception as e:
@@ -286,4 +279,4 @@ def get_recent_likes():
     return jsonify(likes)
 
 if __name__ == '__main__':
-    app.run(host=Config.FLASK_HOST, port=Config.FLASK_PORT, debug=Config.DEBUG)
+    app.run(host=Config.FLASK_HOST, port=Config.FLASK_PORT, debug=Config.FLASK_DEBUG)

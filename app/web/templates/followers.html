@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Followers Manager - Bluesky Bot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #0a0a0f;
+            color: #e4e4e7;
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background: #1a1a1f;
+            border-bottom: 1px solid #2c2c35;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-container h1 {
+            font-size: 1.5rem;
+            color: #fff;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: #9ca3af;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #fff;
+            background: #2c2c35;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        /* Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-header h2 {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: #1a1a1f;
+            border: 1px solid #2c2c35;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .stat-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+
+        .stat-title {
+            font-size: 0.9rem;
+            color: #9ca3af;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .stat-sub {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-top: 0.5rem;
+        }
+
+        /* Filters */
+        .filters-card {
+            background: #1a1a1f;
+            border: 1px solid #2c2c35;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .filter-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #3b82f6;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: #0a0a0f;
+            border: 1px solid #2c2c35;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 0.95rem;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        /* Users Grid */
+        .users-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .selection-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #2c2c35;
+            color: #e4e4e7;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #3b3b45;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .user-card {
+            background: #1a1a1f;
+            border: 1px solid #2c2c35;
+            border-radius: 12px;
+            padding: 1.2rem;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .user-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .user-card.non-follower {
+            border-left: 4px solid #ef4444;
+        }
+
+        .user-card.whitelisted {
+            border-left: 4px solid #10b981;
+            opacity: 0.8;
+        }
+
+        .user-checkbox {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+        }
+
+        .user-checkbox input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #3b82f6;
+        }
+
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-info h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+            color: #fff;
+            padding-right: 2rem;
+        }
+
+        .user-handle {
+            color: #9ca3af;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .user-description {
+            font-size: 0.9rem;
+            color: #9ca3af;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+            max-height: 3.6rem;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .user-stats {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        .user-stats span {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .user-badges {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #6ee7b7;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .badge-info {
+            background: rgba(59, 130, 246, 0.2);
+            color: #93c5fd;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            padding: 0.4rem 0.8rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 1;
+        }
+
+        .action-btn.whitelist {
+            background: #10b981;
+            color: white;
+        }
+
+        .action-btn.whitelist:hover {
+            background: #059669;
+        }
+
+        .action-btn.unfollow {
+            background: #ef4444;
+            color: white;
+        }
+
+        .action-btn.unfollow:hover {
+            background: #dc2626;
+        }
+
+        .action-btn.whitelisted {
+            background: #2c2c35;
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 4rem;
+            color: #6b7280;
+        }
+
+        .loading-spinner {
+            border: 4px solid #2c2c35;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #1a1a1f;
+            border: 1px solid #2c2c35;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .modal-close:hover {
+            color: #fff;
+        }
+
+        .result-item {
+            padding: 0.75rem;
+            border-bottom: 1px solid #2c2c35;
+        }
+
+        .result-item.success {
+            color: #10b981;
+        }
+
+        .result-item.failed {
+            color: #ef4444;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #2c2c35;
+            padding-bottom: 0.5rem;
+        }
+
+        .tab {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            background: #2c2c35;
+        }
+
+        .tab.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            background: #1a1a1f;
+            border: 1px solid #2c2c35;
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+        }
+
+        .notification.success {
+            border-left: 4px solid #10b981;
+        }
+
+        .notification.error {
+            border-left: 4px solid #ef4444;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1>🤖 Bluesky Social Bot</h1>
+            <div class="nav-links">
+                <a href="/">Dashboard</a>
+                <a href="/followers" class="active">Followers Manager</a>
+                <a href="/settings">Settings</a>
+                <a href="/stats">Statistics</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h2>Followers Manager</h2>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="refreshData()">
+                    🔄 Refresh
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid" id="statsContainer">
+            <div class="stat-card">
+                <div class="stat-title">Total Following</div>
+                <div class="stat-value" id="totalFollowing">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Not Following Back</div>
+                <div class="stat-value" id="nonFollowers">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Whitelisted</div>
+                <div class="stat-value" id="whitelisted">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Selected</div>
+                <div class="stat-value" id="selected">0</div>
+                <div class="stat-sub">for bulk actions</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('following')">Following</div>
+            <div class="tab" onclick="switchTab('unfollowers')">Unfollowers History</div>
+            <div class="tab" onclick="switchTab('whitelist')">Whitelist</div>
+        </div>
+
+        <!-- Following Tab -->
+        <div id="tab-following" class="tab-content active">
+            <!-- Filters -->
+            <div class="filters-card">
+                <div class="filter-group">
+                    <label class="filter-item">
+                        <input type="checkbox" id="showNonFollowers" checked onchange="applyFilters()">
+                        <span>Show only non-followers</span>
+                    </label>
+                    <label class="filter-item">
+                        <input type="checkbox" id="hideWhitelisted" checked onchange="applyFilters()">
+                        <span>Hide whitelisted</span>
+                    </label>
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Search by name or handle..." oninput="applyFilters()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="users-header">
+                <h3>People You Follow</h3>
+                <div class="selection-actions">
+                    <button class="btn btn-secondary" onclick="selectAll()">Select All</button>
+                    <button class="btn btn-secondary" onclick="selectNonFollowers()">Select Non-Followers</button>
+                    <button class="btn btn-secondary" onclick="clearSelection()">Clear</button>
+                    <button class="btn btn-success" onclick="whitelistSelected()" id="whitelistSelectedBtn" disabled>
+                        Whitelist Selected
+                    </button>
+                    <button class="btn btn-danger" onclick="unfollowSelected()" id="unfollowSelectedBtn" disabled>
+                        Unfollow Selected
+                    </button>
+                </div>
+            </div>
+
+            <!-- Users Grid -->
+            <div id="usersGrid" class="users-grid">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    Loading your followers...
+                </div>
+            </div>
+        </div>
+
+        <!-- Unfollowers Tab -->
+        <div id="tab-unfollowers" class="tab-content">
+            <div class="filters-card">
+                <div class="filter-group">
+                    <div class="search-box">
+                        <input type="text" id="unfollowersSearch" placeholder="Search unfollowers..." oninput="loadUnfollowers()">
+                    </div>
+                </div>
+            </div>
+            <div id="unfollowersGrid" class="users-grid"></div>
+        </div>
+
+        <!-- Whitelist Tab -->
+        <div id="tab-whitelist" class="tab-content">
+            <div class="filters-card">
+                <div class="filter-group">
+                    <div class="search-box">
+                        <input type="text" id="whitelistSearch" placeholder="Search whitelist..." oninput="loadWhitelist()">
+                    </div>
+                </div>
+            </div>
+            <div id="whitelistGrid" class="users-grid"></div>
+        </div>
+    </div>
+
+    <!-- Results Modal -->
+    <div id="resultsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Operation Results</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modalResults"></div>
+        </div>
+    </div>
+
+    <script>
+        let allUsers = [];
+        let filteredUsers = [];
+        let selectedUsers = new Set();
+
+        // Tab switching
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            document.querySelector(`.tab[onclick="switchTab('${tab}')"]`).classList.add('active');
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            
+            if (tab === 'unfollowers') loadUnfollowers();
+            if (tab === 'whitelist') loadWhitelist();
+        }
+
+        // Load data
+        async function loadData() {
+            try {
+                const response = await fetch('/api/followers/status');
+                const data = await response.json();
+                
+                if (data.error) {
+                    showNotification(data.error, 'error');
+                    return;
+                }
+                
+                allUsers = data.data || [];
+                
+                // Update stats
+                document.getElementById('totalFollowing').textContent = data.stats.total_following;
+                document.getElementById('nonFollowers').textContent = data.stats.non_followers;
+                document.getElementById('whitelisted').textContent = data.stats.whitelisted;
+                
+                applyFilters();
+            } catch (error) {
+                showNotification('Failed to load data', 'error');
+                console.error(error);
+            }
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const showNonFollowers = document.getElementById('showNonFollowers').checked;
+            const hideWhitelisted = document.getElementById('hideWhitelisted').checked;
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            filteredUsers = allUsers.filter(user => {
+                if (showNonFollowers && user.follows_you) return false;
+                if (hideWhitelisted && user.whitelisted) return false;
+                
+                if (searchTerm) {
+                    const handle = user.handle.toLowerCase();
+                    const displayName = (user.display_name || '').toLowerCase();
+                    return handle.includes(searchTerm) || displayName.includes(searchTerm);
+                }
+                
+                return true;
+            });
+            
+            renderUsers(filteredUsers);
+            updateSelectedCount();
+        }
+
+        // Render users grid
+        function renderUsers(users) {
+            const grid = document.getElementById('usersGrid');
+            
+            if (users.length === 0) {
+                grid.innerHTML = '<div class="loading">No users found</div>';
+                return;
+            }
+            
+            grid.innerHTML = users.map(user => `
+                <div class="user-card ${!user.follows_you ? 'non-follower' : ''} ${user.whitelisted ? 'whitelisted' : ''}">
+                    <div class="user-checkbox">
+                        <input type="checkbox" 
+                               ${selectedUsers.has(user.did) ? 'checked' : ''}
+                               onchange="toggleUser('${user.did}', this.checked)">
+                    </div>
+                    
+                    <div class="user-avatar">
+                        ${user.avatar ? `<img src="${user.avatar}" alt="${user.handle}">` : 
+                          (user.display_name ? user.display_name[0].toUpperCase() : user.handle[0].toUpperCase())}
+                    </div>
+                    
+                    <div class="user-info">
+                        <h3>${user.display_name || user.handle}</h3>
+                        <div class="user-handle">@${user.handle}</div>
+                        
+                        ${user.description ? `<div class="user-description">${user.description}</div>` : ''}
+                        
+                        <div class="user-badges">
+                            ${!user.follows_you ? '<span class="badge badge-danger">Not following back</span>' : ''}
+                            ${user.whitelisted ? '<span class="badge badge-success">Whitelisted</span>' : ''}
+                        </div>
+                        
+                        <div class="user-actions">
+                            ${!user.whitelisted ? 
+                                `<button class="action-btn whitelist" onclick="whitelistUser('${user.did}', '${user.handle}', '${user.display_name || ''}')">
+                                    Whitelist
+                                </button>` :
+                                `<button class="action-btn whitelisted" disabled>Whitelisted</button>`
+                            }
+                            
+                            <button class="action-btn unfollow" onclick="unfollowUser('${user.did}', '${user.handle}', '${user.follow_uri}')">
+                                Unfollow
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Selection handling
+        function toggleUser(did, selected) {
+            if (selected) {
+                selectedUsers.add(did);
+            } else {
+                selectedUsers.delete(did);
+            }
+            updateSelectedCount();
+        }
+
+        function selectAll() {
+            filteredUsers.forEach(user => selectedUsers.add(user.did));
+            applyFilters();
+        }
+
+        function selectNonFollowers() {
+            filteredUsers.forEach(user => {
+                if (!user.follows_you) selectedUsers.add(user.did);
+            });
+            applyFilters();
+        }
+
+        function clearSelection() {
+            selectedUsers.clear();
+            applyFilters();
+        }
+
+        function updateSelectedCount() {
+            const count = selectedUsers.size;
+            document.getElementById('selected').textContent = count;
+            document.getElementById('whitelistSelectedBtn').disabled = count === 0;
+            document.getElementById('unfollowSelectedBtn').disabled = count === 0;
+        }
+
+        function loadBotActivity() {
+
+        fetch('/api/activity')
+        .then(res=>res.json())
+        .then(data=>{
+
+        const list = document.getElementById("botActivity");
+
+        list.innerHTML = data.map(a=>`
+        <div class="activity-item">
+        <div>${a.action}</div>
+        <div>@${a.user_handle}</div>
+        <div>${new Date(a.created_at).toLocaleTimeString()}</div>
+        </div>
+        `).join("");
+
+        });
+        }
+
+        setInterval(loadBotActivity,10000);
+        loadBotActivity();
+
+        // Actions
+        async function whitelistUser(did, handle, displayName) {
+            try {
+                const response = await fetch('/api/followers/whitelist/add', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({did, handle, display_name: displayName})
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showNotification(`Added @${handle} to whitelist`, 'success');
+                    await loadData(); // Reload data
+                }
+            } catch (error) {
+                showNotification('Failed to whitelist user', 'error');
+            }
+        }
+
+        async function unfollowUser(did, handle, followUri) {
+            if (!confirm(`Unfollow @${handle}?`)) return;
+            
+            try {
+                const response = await fetch('/api/followers/unfollow', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({users: [{did, handle, follow_uri: followUri}]})
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showNotification(`Unfollowed @${handle}`, 'success');
+                    selectedUsers.delete(did);
+                    await loadData(); // Reload data
+                }
+            } catch (error) {
+                showNotification('Failed to unfollow user', 'error');
+            }
+        }
+
+        async function unfollowSelected() {
+            if (selectedUsers.size === 0) return;
+            
+            const usersToUnfollow = allUsers.filter(user => selectedUsers.has(user.did));
+            
+            if (!confirm(`Unfollow ${usersToUnfollow.length} selected users?`)) return;
+            
+            try {
+                const response = await fetch('/api/followers/unfollow', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({users: usersToUnfollow})
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Show results
+                    const modalResults = document.getElementById('modalResults');
+                    modalResults.innerHTML = `
+                        <h4>Successfully unfollowed (${data.results.success.length})</h4>
+                        ${data.results.success.map(h => `<div class="result-item success">✓ @${h}</div>`).join('')}
+                        
+                        ${data.results.failed.length > 0 ? `
+                            <h4 style="margin-top: 1rem;">Failed (${data.results.failed.length})</h4>
+                            ${data.results.failed.map(f => 
+                                `<div class="result-item failed">✗ @${f.handle}: ${f.reason}</div>`
+                            ).join('')}
+                        ` : ''}
+                    `;
+                    
+                    document.getElementById('resultsModal').classList.add('active');
+                    
+                    // Clear selection and reload
+                    selectedUsers.clear();
+                    await loadData();
+                }
+            } catch (error) {
+                showNotification('Failed to unfollow users', 'error');
+            }
+        }
+
+        async function whitelistSelected() {
+            if (selectedUsers.size === 0) return;
+            
+            const usersToWhitelist = allUsers.filter(user => selectedUsers.has(user.did) && !user.whitelisted);
+            
+            let success = 0;
+            for (const user of usersToWhitelist) {
+                try {
+                    await fetch('/api/followers/whitelist/add', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            did: user.did,
+                            handle: user.handle,
+                            display_name: user.display_name
+                        })
+                    });
+                    success++;
+                } catch (error) {
+                    console.error('Failed to whitelist', user.handle);
+                }
+            }
+            
+            showNotification(`Added ${success} users to whitelist`, 'success');
+            selectedUsers.clear();
+            await loadData();
+        }
+
+        // Load unfollowers
+        async function loadUnfollowers() {
+            const searchTerm = document.getElementById('unfollowersSearch')?.value.toLowerCase() || '';
+            const grid = document.getElementById('unfollowersGrid');
+            
+            grid.innerHTML = '<div class="loading"><div class="loading-spinner"></div>Loading unfollowers...</div>';
+            
+            try {
+                const response = await fetch('/api/followers/unfollowers');
+                const data = await response.json();
+                
+                if (data.error) {
+                    grid.innerHTML = '<div class="loading">Error loading unfollowers</div>';
+                    return;
+                }
+                
+                const unfollowers = data.data.filter(u => 
+                    u.handle.toLowerCase().includes(searchTerm) ||
+                    (u.display_name || '').toLowerCase().includes(searchTerm)
+                );
+                
+                if (unfollowers.length === 0) {
+                    grid.innerHTML = '<div class="loading">No unfollowers found</div>';
+                    return;
+                }
+                
+                grid.innerHTML = unfollowers.map(u => `
+                    <div class="user-card">
+                        <div class="user-info">
+                            <h3>${u.display_name || u.handle}</h3>
+                            <div class="user-handle">@${u.handle}</div>
+                            <div class="user-stats">
+                                <span>📅 Unfollowed: ${new Date(u.unfollowed_at).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                grid.innerHTML = '<div class="loading">Error loading unfollowers</div>';
+            }
+        }
+
+        // Load whitelist
+        async function loadWhitelist() {
+            const searchTerm = document.getElementById('whitelistSearch')?.value.toLowerCase() || '';
+            const grid = document.getElementById('whitelistGrid');
+            
+            grid.innerHTML = '<div class="loading"><div class="loading-spinner"></div>Loading whitelist...</div>';
+            
+            try {
+                const response = await fetch('/api/followers/whitelist');
+                const data = await response.json();
+                
+                if (data.error) {
+                    grid.innerHTML = '<div class="loading">Error loading whitelist</div>';
+                    return;
+                }
+                
+                const whitelist = data.data.filter(w => 
+                    w.handle.toLowerCase().includes(searchTerm) ||
+                    (w.display_name || '').toLowerCase().includes(searchTerm)
+                );
+                
+                if (whitelist.length === 0) {
+                    grid.innerHTML = '<div class="loading">No whitelisted users</div>';
+                    return;
+                }
+                
+                grid.innerHTML = whitelist.map(w => `
+                    <div class="user-card">
+                        <div class="user-info">
+                            <h3>${w.display_name || w.handle}</h3>
+                            <div class="user-handle">@${w.handle}</div>
+                            <div class="user-stats">
+                                <span>📅 Added: ${new Date(w.added_at).toLocaleDateString()}</span>
+                            </div>
+                            ${w.reason ? `<div class="user-description">Reason: ${w.reason}</div>` : ''}
+                        </div>
+                        <div class="user-actions" style="margin-top: 1rem;">
+                            <button class="action-btn unfollow" onclick="removeFromWhitelist('${w.did}')">
+                                Remove from Whitelist
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                grid.innerHTML = '<div class="loading">Error loading whitelist</div>';
+            }
+        }
+
+        async function removeFromWhitelist(did) {
+            if (!confirm('Remove this user from whitelist?')) return;
+            
+            try {
+                const response = await fetch('/api/followers/whitelist/remove', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({did})
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showNotification('Removed from whitelist', 'success');
+                    loadWhitelist();
+                }
+            } catch (error) {
+                showNotification('Failed to remove from whitelist', 'error');
+            }
+        }
+
+        function refreshData() {
+            loadData();
+            showNotification('Data refreshed', 'success');
+        }
+
+        function closeModal() {
+            document.getElementById('resultsModal').classList.remove('active');
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Initial load
+        loadData();
+    </script>
+</body>
+</html>

@@ -490,6 +490,7 @@
         <h1>🤖 Bluesky Social Bot</h1>
         <div class="nav-links">
             <a href="/" class="active">Dashboard</a>
+            <a href="/followers">Followers Manager</a>  <!-- Add this line -->
             <a href="/settings">Settings</a>
             <a href="/stats">Statistics</a>
         </div>
@@ -595,6 +596,15 @@
                 <canvas id="activityChart"></canvas>
             </div>
         </div>
+
+    <div class="activity-card">
+        <div class="activity-header">
+            <h3>Bot Activity</h3>
+            <span class="badge">Live</span>
+        </div>
+
+        <div id="botActivity"></div>
+    </div>
 
         <!-- Keyword Distribution -->
         <div class="chart-card">
