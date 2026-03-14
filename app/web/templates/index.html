@@ -13,68 +13,87 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #0f0f13;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #0a0a0f 0%, #0f0f1a 100%);
             color: #e4e4e7;
             line-height: 1.6;
+            min-height: 100vh;
         }
 
+        /* Navbar */
         .navbar {
-            background: #1a1a1f;
-            border-bottom: 1px solid #2c2c35;
+            background: rgba(26, 26, 31, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(44, 44, 53, 0.5);
+            padding: 1rem 0;
             position: sticky;
             top: 0;
             z-index: 100;
         }
 
         .nav-container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
-            padding: 1rem 2rem;
+            padding: 0 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .nav-container h1 {
-            color: #3b82f6;
             font-size: 1.5rem;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        .nav-links {
             display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            gap: 1rem;
         }
 
         .nav-links a {
             color: #9ca3af;
             text-decoration: none;
-            padding: 0.5rem 1rem;
-            margin-left: 0.5rem;
-            border-radius: 6px;
+            font-weight: 500;
             transition: all 0.2s;
+            padding: 0.5rem 1.2rem;
+            border-radius: 8px;
+            position: relative;
         }
 
-        .nav-links a:hover, .nav-links a.active {
-            background: #2c2c35;
-            color: #ffffff;
+        .nav-links a:hover {
+            color: #fff;
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .nav-links a.active {
+            color: #fff;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 2rem auto;
             padding: 0 2rem;
         }
 
         /* Status Banner */
         .status-banner {
-            background: linear-gradient(135deg, #1a1a1f 0%, #2c2c35 100%);
-            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(26, 26, 31, 0.9), rgba(31, 31, 39, 0.9));
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
             padding: 1.5rem 2rem;
             margin-bottom: 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border: 1px solid #3b3b45;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(44, 44, 53, 0.5);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
         .status-info {
@@ -88,6 +107,10 @@
             display: flex;
             align-items: center;
             gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: rgba(10, 10, 15, 0.5);
+            border-radius: 30px;
+            border: 1px solid rgba(44, 44, 53, 0.5);
         }
 
         .status-dot {
@@ -99,38 +122,52 @@
 
         .status-dot.running {
             background: #10b981;
-            box-shadow: 0 0 10px #10b981;
+            box-shadow: 0 0 15px #10b981;
         }
 
         .status-dot.paused {
             background: #f59e0b;
-            box-shadow: 0 0 10px #f59e0b;
+            box-shadow: 0 0 15px #f59e0b;
         }
 
         .status-dot.stopped {
             background: #ef4444;
-            box-shadow: 0 0 10px #ef4444;
+            box-shadow: 0 0 15px #ef4444;
         }
 
         @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
         }
 
         .status-text {
-            font-size: 1.25rem;
+            font-size: 1.1rem;
             font-weight: 600;
         }
 
-        .status-text.running { color: #10b981; }
-        .status-text.paused { color: #f59e0b; }
-        .status-text.stopped { color: #ef4444; }
+        .status-text.running { 
+            background: linear-gradient(135deg, #10b981, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .status-text.paused { 
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .status-text.stopped { 
+            background: linear-gradient(135deg, #ef4444, #f87171);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
         .status-time {
             display: flex;
             gap: 2rem;
-            color: #9ca3af;
+            padding: 0.5rem 1rem;
+            background: rgba(10, 10, 15, 0.5);
+            border-radius: 12px;
+            border: 1px solid rgba(44, 44, 53, 0.5);
         }
 
         .time-item {
@@ -140,15 +177,16 @@
         }
 
         .time-label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
+            color: #6b7280;
         }
 
         .time-value {
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 500;
-            color: #e4e4e7;
+            color: #fff;
         }
 
         .control-buttons {
@@ -157,71 +195,85 @@
             flex-wrap: wrap;
         }
 
-        button {
+        /* Buttons */
+        .btn {
             padding: 0.6rem 1.2rem;
             border: none;
-            border-radius: 6px;
+            border-radius: 10px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s;
+            font-size: 0.9rem;
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            font-size: 0.875rem;
-        }
-
-        button:active {
-            transform: translateY(1px);
         }
 
         .btn-success { 
-            background: #10b981; 
-            color: white; 
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
         }
-        .btn-success:hover { background: #059669; }
+        .btn-success:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+        }
 
         .btn-danger { 
-            background: #ef4444; 
-            color: white; 
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
         }
-        .btn-danger:hover { background: #dc2626; }
+        .btn-danger:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+        }
 
         .btn-warning { 
-            background: #f59e0b; 
-            color: white; 
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
         }
-        .btn-warning:hover { background: #d97706; }
+        .btn-warning:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
+        }
 
         .btn-primary { 
-            background: #3b82f6; 
-            color: white; 
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
         }
-        .btn-primary:hover { background: #2563eb; }
+        .btn-primary:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+        }
 
         .btn-secondary { 
-            background: #2c2c35; 
-            color: #e4e4e7; 
+            background: rgba(44, 44, 53, 0.8);
+            color: #e4e4e7;
             border: 1px solid #3b3b45;
         }
         .btn-secondary:hover { 
-            background: #3b3b45; 
+            background: #3b3b45;
             border-color: #4b4b55;
+            transform: translateY(-2px);
         }
 
         /* Stats Cards */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
 
         .stat-card {
-            background: #1a1a1f;
+            background: linear-gradient(135deg, #1a1a1f, #1f1f27);
             border: 1px solid #2c2c35;
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 1.5rem;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
         }
@@ -234,23 +286,31 @@
             right: 0;
             height: 4px;
             background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-            border-color: #3b82f6;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
         }
 
         .stat-card:hover::before {
-            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.5);
+            border-color: #3b82f6;
         }
 
         .stat-icon {
             font-size: 2rem;
             margin-bottom: 1rem;
+            background: rgba(59, 130, 246, 0.1);
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
         }
 
         .stat-label {
@@ -265,7 +325,7 @@
             font-weight: 700;
             color: #ffffff;
             line-height: 1.2;
-            margin: 0.25rem 0;
+            margin: 0.5rem 0;
         }
 
         .stat-trend {
@@ -273,10 +333,23 @@
             align-items: center;
             gap: 0.25rem;
             font-size: 0.875rem;
+            margin-bottom: 1rem;
         }
 
-        .trend-up { color: #10b981; }
-        .trend-down { color: #ef4444; }
+        .trend-up { 
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        .trend-down { 
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
 
         /* Progress Bar */
         .progress-container {
@@ -288,21 +361,38 @@
             justify-content: space-between;
             color: #9ca3af;
             font-size: 0.75rem;
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.5rem;
         }
 
         .progress-bar {
-            height: 6px;
+            height: 8px;
             background: #2c2c35;
-            border-radius: 3px;
+            border-radius: 4px;
             overflow: hidden;
         }
 
         .progress-fill {
             height: 100%;
             background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-            border-radius: 3px;
-            transition: width 0.3s;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
         }
 
         /* Charts Grid */
@@ -314,23 +404,40 @@
         }
 
         .chart-card {
-            background: #1a1a1f;
+            background: linear-gradient(135deg, #1a1a1f, #1f1f27);
             border: 1px solid #2c2c35;
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .chart-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.5);
         }
 
         .chart-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
 
         .chart-header h3 {
             color: #ffffff;
             font-size: 1.1rem;
-            font-weight: 500;
+            font-weight: 600;
+        }
+
+        .badge {
+            background: rgba(44, 44, 53, 0.8);
+            color: #9ca3af;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            border: 1px solid #3b3b45;
+            backdrop-filter: blur(4px);
         }
 
         .chart-container {
@@ -339,53 +446,74 @@
             width: 100%;
         }
 
-        /* Activity Section */
+        /* Activity Grid */
         .activity-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
             gap: 1.5rem;
+            margin-top: 2rem;
         }
 
         .activity-card {
-            background: #1a1a1f;
+            background: linear-gradient(135deg, #1a1a1f, #1f1f27);
             border: 1px solid #2c2c35;
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .activity-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.5);
         }
 
         .activity-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
 
         .activity-header h3 {
             color: #ffffff;
             font-size: 1.1rem;
-            font-weight: 500;
-        }
-
-        .badge {
-            background: #2c2c35;
-            color: #9ca3af;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            border: 1px solid #3b3b45;
+            font-weight: 600;
         }
 
         .activity-list {
-            max-height: 300px;
+            max-height: 350px;
             overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #3b82f6 #2c2c35;
+        }
+
+        .activity-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .activity-list::-webkit-scrollbar-track {
+            background: #2c2c35;
+            border-radius: 3px;
+        }
+
+        .activity-list::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 3px;
         }
 
         .activity-item {
             display: flex;
             align-items: center;
             gap: 1rem;
-            padding: 0.75rem 0;
+            padding: 0.75rem;
             border-bottom: 1px solid #2c2c35;
+            transition: background 0.2s;
+        }
+
+        .activity-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 8px;
         }
 
         .activity-item:last-child {
@@ -393,8 +521,8 @@
         }
 
         .activity-avatar {
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             background: linear-gradient(135deg, #3b82f6, #8b5cf6);
             border-radius: 50%;
             display: flex;
@@ -403,6 +531,8 @@
             font-weight: 600;
             color: white;
             flex-shrink: 0;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
         }
 
         .activity-content {
@@ -413,60 +543,105 @@
         .activity-user {
             font-weight: 600;
             color: #ffffff;
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.2rem;
+            font-size: 0.95rem;
         }
 
         .activity-handle {
             color: #9ca3af;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
         }
 
         .activity-time {
             color: #6b7280;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             white-space: nowrap;
+            background: rgba(44, 44, 53, 0.5);
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
         }
 
         .activity-post {
             color: #9ca3af;
-            font-size: 0.875rem;
+            font-size: 0.85rem;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             max-width: 200px;
+            background: rgba(44, 44, 53, 0.3);
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
         }
 
+        /* Loading State */
         .loading {
             text-align: center;
             padding: 2rem;
             color: #9ca3af;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
         .loading::after {
             content: '';
-            display: inline-block;
             width: 1rem;
             height: 1rem;
             border: 2px solid #3b82f6;
             border-top-color: transparent;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-left: 0.5rem;
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
 
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #1a1a1f, #1f1f27);
+            border-left: 4px solid #3b82f6;
+            color: #fff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .notification.success {
+            border-left-color: #10b981;
+        }
+
+        .notification.error {
+            border-left-color: #ef4444;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
         /* Responsive */
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             .charts-grid {
                 grid-template-columns: 1fr;
             }
-            
+        }
+
+        @media (max-width: 768px) {
             .status-banner {
                 flex-direction: column;
-                gap: 1rem;
                 align-items: flex-start;
             }
             
@@ -474,11 +649,21 @@
                 flex-direction: column;
                 gap: 1rem;
                 align-items: flex-start;
+                width: 100%;
+            }
+            
+            .status-time {
+                width: 100%;
+                justify-content: space-between;
             }
             
             .control-buttons {
                 width: 100%;
                 justify-content: flex-start;
+            }
+            
+            .activity-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -490,7 +675,7 @@
         <h1>🤖 Bluesky Social Bot</h1>
         <div class="nav-links">
             <a href="/" class="active">Dashboard</a>
-            <a href="/followers">Followers Manager</a>  <!-- Add this line -->
+            <a href="/followers">Followers Manager</a>
             <a href="/settings">Settings</a>
             <a href="/stats">Statistics</a>
         </div>
@@ -519,19 +704,19 @@
             </div>
         </div>
         <div class="control-buttons">
-            <button onclick="controlBot('start')" class="btn-success">
+            <button onclick="controlBot('start')" class="btn btn-success">
                 <span>▶</span> Start
             </button>
-            <button onclick="controlBot('pause')" class="btn-warning">
+            <button onclick="controlBot('pause')" class="btn btn-warning">
                 <span>⏸</span> Pause
             </button>
-            <button onclick="controlBot('resume')" class="btn-primary">
+            <button onclick="controlBot('resume')" class="btn btn-primary">
                 <span>▶</span> Resume
             </button>
-            <button onclick="controlBot('stop')" class="btn-danger">
+            <button onclick="controlBot('stop')" class="btn btn-danger">
                 <span>⏹</span> Stop
             </button>
-            <button onclick="runNow()" class="btn-secondary">
+            <button onclick="runNow()" class="btn btn-secondary">
                 <span>⚡</span> Run Now
             </button>
         </div>
@@ -597,20 +782,11 @@
             </div>
         </div>
 
-    <div class="activity-card">
-        <div class="activity-header">
-            <h3>Bot Activity</h3>
-            <span class="badge">Live</span>
-        </div>
-
-        <div id="botActivity"></div>
-    </div>
-
         <!-- Keyword Distribution -->
         <div class="chart-card">
             <div class="chart-header">
                 <h3>Active Keywords</h3>
-                <div class="badge">{{ keywords_count }} total</div>
+                <div class="badge" id="keywordsCount">0 total</div>
             </div>
             <div class="chart-container">
                 <canvas id="keywordsChart"></canvas>
@@ -624,7 +800,7 @@
         <div class="activity-card">
             <div class="activity-header">
                 <h3>Recent Likes</h3>
-                <span class="badge">Last 10</span>
+                <div class="badge">Last 10</div>
             </div>
             <div class="activity-list" id="recentLikesList">
                 {% for like in recent_likes %}
@@ -633,12 +809,12 @@
                         {{ like.user_handle[0] | upper if like.user_handle else '?' }}
                     </div>
                     <div class="activity-content">
-                        <div class="activity-user">{{ like.user_handle }}</div>
-                        <div class="activity-time">{{ like.liked_at[:16] }}</div>
+                        <div class="activity-user">@{{ like.user_handle }}</div>
+                        <div class="activity-handle">{{ like.liked_at[:16] }}</div>
                     </div>
                     <div class="activity-post">
-                        {% if like.post_data %}
-                            {{ like.post_data.text[:30] + '...' if like.post_data.text else 'No text' }}
+                        {% if like.post_data and like.post_data.text %}
+                            {{ like.post_data.text[:25] + '...' if like.post_data.text|length > 25 else like.post_data.text }}
                         {% else %}
                             Liked a post
                         {% endif %}
@@ -658,11 +834,21 @@
         <div class="activity-card">
             <div class="activity-header">
                 <h3>Recently Followed</h3>
-                <span class="badge">Today</span>
+                <div class="badge">Today</div>
             </div>
             <div class="activity-list" id="recentFollowsList">
-                <!-- Will be populated via API -->
                 <div class="loading">Loading...</div>
+            </div>
+        </div>
+
+        <!-- Bot Activity Log -->
+        <div class="activity-card">
+            <div class="activity-header">
+                <h3>Bot Activity Log</h3>
+                <div class="badge">Live</div>
+            </div>
+            <div class="activity-list" id="botActivity">
+                <div class="loading">Loading activity...</div>
             </div>
         </div>
     </div>
@@ -675,16 +861,14 @@
             .then(response => response.json())
             .then(data => {
                 if (data.error) {
-                    alert('Error: ' + data.error);
+                    showNotification('Error: ' + data.error, 'error');
                 } else {
-                    // Show success message
                     showNotification(data.message || `${action} successful`, 'success');
-                    // Reload after short delay
                     setTimeout(() => location.reload(), 1000);
                 }
             })
             .catch(error => {
-                alert('Error: ' + error);
+                showNotification('Error: ' + error, 'error');
             });
     }
 
@@ -695,71 +879,46 @@
                 showNotification('Bot run started! Check back in a few minutes.', 'success');
             })
             .catch(error => {
-                alert('Error: ' + error);
+                showNotification('Error: ' + error, 'error');
             });
     }
 
     // Show notification
     function showNotification(message, type) {
-        // Create notification element
         const notification = document.createElement('div');
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: ${type === 'success' ? '#10b981' : '#ef4444'};
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            z-index: 1000;
-            animation: slideIn 0.3s ease;
-        `;
+        notification.className = `notification ${type}`;
         notification.textContent = message;
         document.body.appendChild(notification);
 
-        // Remove after 3 seconds
         setTimeout(() => {
             notification.style.animation = 'slideOut 0.3s ease';
             setTimeout(() => notification.remove(), 300);
         }, 3000);
-
-        // Add animations
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-            @keyframes slideOut {
-                from { transform: translateX(0); opacity: 1; }
-                to { transform: translateX(100%); opacity: 0; }
-            }
-        `;
-        document.head.appendChild(style);
     }
 
     // Load activity chart
-    const ctx = document.getElementById('activityChart').getContext('2d');
-    
     fetch('/api/stats/historical?days=7')
         .then(res => res.json())
         .then(data => {
             // Calculate trends
             if (data.length >= 2) {
-                const lastWeek = data[data.length - 1]?.likes || 0;
-                const prevWeek = data[data.length - 2]?.likes || 0;
-                const likesTrend = prevWeek > 0 ? ((lastWeek - prevWeek) / prevWeek * 100).toFixed(1) : 0;
+                const lastDay = data[data.length - 1]?.likes || 0;
+                const prevDay = data[data.length - 2]?.likes || 0;
+                const likesTrend = prevDay > 0 ? ((lastDay - prevDay) / prevDay * 100).toFixed(1) : 0;
                 
                 document.getElementById('likesTrend').innerHTML = likesTrend > 0 ? 
                     `<span class="trend-up">↑ ${likesTrend}% vs yesterday</span>` : 
                     `<span class="trend-down">↓ ${Math.abs(likesTrend)}% vs yesterday</span>`;
             }
 
+            const ctx = document.getElementById('activityChart').getContext('2d');
             new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: data.map(d => d.date.slice(5)),
+                    labels: data.map(d => {
+                        const date = new Date(d.date);
+                        return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                    }),
                     datasets: [
                         {
                             label: 'Likes',
@@ -773,6 +932,19 @@
                             pointBorderWidth: 2,
                             pointRadius: 4,
                             pointHoverRadius: 6
+                        },
+                        {
+                            label: 'Follows',
+                            data: data.map(d => d.follows || 0),
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#10b981',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
                         }
                     ]
                 },
@@ -781,14 +953,20 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            display: false
+                            display: true,
+                            labels: {
+                                color: '#9ca3af',
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
                         },
                         tooltip: {
                             backgroundColor: '#1a1a1f',
                             titleColor: '#ffffff',
                             bodyColor: '#9ca3af',
                             borderColor: '#2c2c35',
-                            borderWidth: 1
+                            borderWidth: 1,
+                            padding: 10
                         }
                     },
                     scales: {
@@ -824,6 +1002,8 @@
             const activeCount = keywords.filter(k => k.active).length;
             const inactiveCount = keywords.length - activeCount;
             
+            document.getElementById('keywordsCount').textContent = `${keywords.length} total`;
+            
             const keywordsCtx = document.getElementById('keywordsChart').getContext('2d');
             new Chart(keywordsCtx, {
                 type: 'doughnut',
@@ -833,7 +1013,8 @@
                         data: [activeCount, inactiveCount],
                         backgroundColor: ['#10b981', '#2c2c35'],
                         borderColor: ['#059669', '#3b3b45'],
-                        borderWidth: 2
+                        borderWidth: 2,
+                        hoverOffset: 4
                     }]
                 },
                 options: {
@@ -849,6 +1030,13 @@
                                 usePointStyle: true,
                                 pointStyle: 'circle'
                             }
+                        },
+                        tooltip: {
+                            backgroundColor: '#1a1a1f',
+                            titleColor: '#ffffff',
+                            bodyColor: '#9ca3af',
+                            borderColor: '#2c2c35',
+                            borderWidth: 1
                         }
                     }
                 }
@@ -873,7 +1061,7 @@
             list.innerHTML = recentFollows.map(user => `
                 <div class="activity-item">
                     <div class="activity-avatar">
-                        ${(user.display_name?.[0] || user.handle?.[0] || '?')}
+                        ${(user.display_name?.[0] || user.handle?.[0] || '?').toUpperCase()}
                     </div>
                     <div class="activity-content">
                         <div class="activity-user">${user.display_name || user.handle}</div>
@@ -887,16 +1075,49 @@
             document.getElementById('recentFollowsList').innerHTML = '<div class="activity-item">Error loading follows</div>';
         });
 
-    // Auto-refresh every 30 seconds
+    // Load bot activity
+    function loadBotActivity() {
+        fetch('/api/activity')
+            .then(res => res.json())
+            .then(data => {
+                const list = document.getElementById('botActivity');
+                
+                if (!data || data.length === 0) {
+                    list.innerHTML = '<div class="activity-item">No recent activity</div>';
+                    return;
+                }
+                
+                list.innerHTML = data.slice(0, 10).map(a => `
+                    <div class="activity-item">
+                        <div class="activity-avatar">
+                            ${a.action[0].toUpperCase()}
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-user">${a.action}</div>
+                            <div class="activity-handle">@${a.user_handle || 'system'}</div>
+                        </div>
+                        <div class="activity-time">${new Date(a.created_at).toLocaleTimeString()}</div>
+                    </div>
+                `).join('');
+            })
+            .catch(() => {
+                document.getElementById('botActivity').innerHTML = '<div class="activity-item">Failed to load activity</div>';
+            });
+    }
+
+    // Auto-refresh stats every 30 seconds
     setInterval(() => {
-        // Refresh stats
         fetch('/api/stats/today')
             .then(res => res.json())
             .then(stats => {
-                // Update stat values without full page reload
                 document.querySelector('.stat-card:first-child .stat-value').textContent = stats.likes;
             });
+        
+        loadBotActivity();
     }, 30000);
+
+    // Initial load
+    loadBotActivity();
 </script>
 
 </body>
