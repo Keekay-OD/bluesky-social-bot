@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settings - Bluesky Social Bot</title>
+    <title>Configuration - Bluesky Social Bot</title>
     <link rel="stylesheet" href="/static/style.css">
     <style>
         /* Dark theme enhancements */
@@ -79,7 +79,7 @@
             padding: 0 2rem;
         }
 
-        .settings-grid {
+        .configuration-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
             gap: 2rem;
@@ -397,8 +397,8 @@
             background: #dc2626;
         }
 
-        /* Settings form */
-        .settings-form {
+        /* Configuration form */
+        .configuration-form {
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
@@ -503,16 +503,16 @@
         <div class="nav-container">
             <h1>🤖 Bluesky Social Bot</h1>
             <div class="nav-links">
-                <a href="/" class="active">Dashboard</a>
-                <a href="/followers">Followers Manager</a>
-                <a href="/settings">Settings</a>
+                <a href="/">Dashboard</a>
+                <a href="/followers">Audience Manager</a>
+                <a href="/configuration" class="active">Configuration</a>
                 <a href="/stats">Statistics</a>
             </div>
         </div>
     </nav>
 
     <div class="container">
-        <div class="settings-grid">
+        <div class="configuration-grid">
             <!-- Left Column -->
             <div class="card">
                 <h2>🔐 Bluesky Credentials</h2>
@@ -592,7 +592,7 @@
                 <h2>⚙️ Bot Configuration</h2>
                 <p class="description">Configure bot behavior</p>
                 
-                <div class="settings-form">
+                <div class="configuration-form">
                     <div class="setting-item">
                         <label>Check Interval (seconds)</label>
                         <input type="number" id="checkInterval" value="{{ config.CHECK_INTERVAL }}" min="300" step="60">
@@ -846,9 +846,9 @@
             });
         }
 
-        // Save bot settings
+        // Save bot configuration
         function saveSettings() {
-            const settings = {
+            const configuration = {
                 check_interval: document.getElementById('checkInterval').value,
                 max_likes_per_day: document.getElementById('maxLikes').value,
                 max_likes_per_user: document.getElementById('likesPerUser').value,
@@ -858,17 +858,17 @@
                 max_follows_per_day: document.getElementById('maxFollows').value
             };
 
-            fetch('/api/settings', {
+            fetch('/api/configuration', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(settings)
+                body: JSON.stringify(configuration)
             })
             .then(response => response.json())
             .then(data => {
                 if (data.error) {
                     showStatus(data.error, 'error');
                 } else {
-                    showStatus('Settings saved successfully!', 'success');
+                    showStatus('Configuration saved successfully!', 'success');
                 }
             });
         }
