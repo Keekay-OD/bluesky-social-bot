@@ -24,7 +24,7 @@ A sophisticated automation bot for Bluesky Social that helps you engage with you
   <table>
     <tr>
       <td align="center">
-        <!-- Replace with your image: <img src="screenshots/settings.png" width="400"> -->
+        <!-- Replace with your image: <img src="screenshots/configuration.png" width="400"> -->
         <img src="https://i.imgur.com/yK9zX3S.png" width="400"><br>
         <i>Settings & Configuration</i>
       </td>
@@ -54,7 +54,7 @@ A sophisticated automation bot for Bluesky Social that helps you engage with you
 ### Prerequisites
 
 - Python 3.9+ or Docker
-- Bluesky account with [App Password](https://bsky.app/settings/app-passwords)
+- Bluesky account with [App Password](https://bsky.app/configuration/app-passwords)
 
 ### Installation
 
@@ -134,7 +134,7 @@ Organize your keywords into groups for different campaigns:
 ### Web Interface Pages
 
 - **Dashboard** (`/`) - Main control center with real-time stats
-- **Settings** (`/settings`) - Configure keywords, groups, and bot behavior
+- **Configuration** (`configuration`) - Configure keywords, groups, and bot behavior
 - **Statistics** (`/stats`) - Detailed analytics and historical data
 
 ## 📊 API Endpoints
@@ -160,7 +160,7 @@ bluesky-social-bot/
 │   ├── web/
 │   │   ├── templates/          # HTML templates
 │   │   │   ├── index.html      # Dashboard
-│   │   │   ├── settings.html   # Settings page
+│   │   │   ├── configuration.html   # Settings page
 │   │   │   └── stats.html      # Statistics page
 │   │   └── app.py              # Flask web server
 │   ├── bot.py                   # Main bot logic
