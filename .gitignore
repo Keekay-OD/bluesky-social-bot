@@ -1,37 +1,14 @@
+# Environment variables
 .env
-app/config.py
-app/__pycache__/database.cpython-311.pyc
-data/bluesky_bot.db
-app/__pycache__/bot.cpython-311.pyc
-app/__pycache__/bot.cpython-311.pyc
-.pyc
-app/__pycache__/bot.cpython-311.pyc
-app/__pycache__/config.cpython-311.pyc
 
-
-z74H894vGcFL
-data/bluesky_bot.db-shm
-data/bluesky_bot.db-wal
-.db-wal
-.db-shm
-app/__pycache__/config.cpython-311.pyc
-data/bluesky_bot.db-shm
-data/bluesky_bot.db-wal
-.pyc
-app/__pycache__/config.cpython-311.pyc
+# Python byte-code
+__pycache__/
 *.pyc
-data/bluesky_bot.db-shm
+
+# Database files
+data/bluesky_bot.db
 *.db-shm
-
-data/bluesky_bot.db-wal
 *.db-wal
-app/__pycache__/bot.cpython-311.pyc
-data/bluesky_bot.db-shm
-data/bluesky_bot.db-wal
-*app/__pycache__
-app/__pycache__*
-app/__pycache__/config.cpython-311.pyc
 
-app/__pycache__/bot.cpython-311.pyc
-data/bluesky_bot.db-shm
-data/bluesky_bot.db-wal
+# Config files
+app/config.py
