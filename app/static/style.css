@@ -326,8 +326,8 @@ input:checked + .slider:before {
     border-radius: 50%;
 }
 
-/* Settings Grid */
-.settings-grid {
+/* Configuration Grid */
+.configuration-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
     gap: 20px;
@@ -405,7 +405,7 @@ input:checked + .slider:before {
         grid-template-columns: 1fr;
     }
     
-    .settings-grid {
+    .configuration-grid {
         grid-template-columns: 1fr;
     }
     
