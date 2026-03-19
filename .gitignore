@@ -18,3 +18,5 @@ app/__pycache__/config.cpython-311.pyc
 data/bluesky_bot.db-shm
 data/bluesky_bot.db-wal
 .pyc
+app/__pycache__/config.cpython-311.pyc
+*.pyc
