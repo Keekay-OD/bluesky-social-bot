@@ -25,3 +25,6 @@ data/bluesky_bot.db-shm
 
 data/bluesky_bot.db-wal
 *.db-wal
+app/__pycache__/bot.cpython-311.pyc
+data/bluesky_bot.db-shm
+data/bluesky_bot.db-wal
