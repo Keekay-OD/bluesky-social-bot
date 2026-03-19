@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Bluesky Social Bot</title>
+    <title>Bluesky Growth Engine | Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
@@ -120,7 +120,7 @@
             animation: pulse 2s infinite;
         }
 
-        .status-dot.running {
+        .status-dot.active {
             background: #10b981;
             box-shadow: 0 0 15px #10b981;
         }
@@ -130,7 +130,7 @@
             box-shadow: 0 0 15px #f59e0b;
         }
 
-        .status-dot.stopped {
+        .status-dot.inactive {
             background: #ef4444;
             box-shadow: 0 0 15px #ef4444;
         }
@@ -145,7 +145,7 @@
             font-weight: 600;
         }
 
-        .status-text.running { 
+        .status-text.active { 
             background: linear-gradient(135deg, #10b981, #34d399);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -155,7 +155,7 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        .status-text.stopped { 
+        .status-text.inactive { 
             background: linear-gradient(135deg, #ef4444, #f87171);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -209,12 +209,18 @@
             gap: 0.5rem;
         }
 
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
         .btn-success { 
             background: linear-gradient(135deg, #10b981, #059669);
             color: white;
             box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
         }
-        .btn-success:hover { 
+        .btn-success:hover:not(:disabled) { 
             transform: translateY(-2px);
             box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
         }
@@ -224,7 +230,7 @@
             color: white;
             box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
         }
-        .btn-danger:hover { 
+        .btn-danger:hover:not(:disabled) { 
             transform: translateY(-2px);
             box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
         }
@@ -234,7 +240,7 @@
             color: white;
             box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
         }
-        .btn-warning:hover { 
+        .btn-warning:hover:not(:disabled) { 
             transform: translateY(-2px);
             box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
         }
@@ -244,7 +250,7 @@
             color: white;
             box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
         }
-        .btn-primary:hover { 
+        .btn-primary:hover:not(:disabled) { 
             transform: translateY(-2px);
             box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
         }
@@ -254,7 +260,7 @@
             color: #e4e4e7;
             border: 1px solid #3b3b45;
         }
-        .btn-secondary:hover { 
+        .btn-secondary:hover:not(:disabled) { 
             background: #3b3b45;
             border-color: #4b4b55;
             transform: translateY(-2px);
@@ -276,6 +282,7 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            cursor: pointer;
         }
 
         .stat-card::before {
@@ -440,10 +447,92 @@
             backdrop-filter: blur(4px);
         }
 
+        .badge.success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .badge.warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
         .chart-container {
             position: relative;
             height: 300px;
             width: 100%;
+        }
+
+        /* Keywords List */
+        .keywords-list {
+            max-height: 250px;
+            overflow-y: auto;
+            margin-top: 1rem;
+            scrollbar-width: thin;
+            scrollbar-color: #3b82f6 #2c2c35;
+        }
+
+        .keywords-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .keywords-list::-webkit-scrollbar-track {
+            background: #2c2c35;
+            border-radius: 3px;
+        }
+
+        .keywords-list::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 3px;
+        }
+
+        .keyword-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border-bottom: 1px solid #2c2c35;
+            transition: background 0.2s;
+        }
+
+        .keyword-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 8px;
+        }
+
+        .keyword-name {
+            font-weight: 500;
+            color: #ffffff;
+        }
+
+        .keyword-stats {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .keyword-count {
+            color: #9ca3af;
+            font-size: 0.85rem;
+        }
+
+        .keyword-badge {
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .keyword-badge.active {
+            background: #10b981;
+            color: white;
+        }
+
+        .keyword-badge.inactive {
+            background: #2c2c35;
+            color: #9ca3af;
         }
 
         /* Activity Grid */
@@ -509,6 +598,7 @@
             padding: 0.75rem;
             border-bottom: 1px solid #2c2c35;
             transition: background 0.2s;
+            cursor: pointer;
         }
 
         .activity-item:hover {
@@ -571,6 +661,139 @@
             background: rgba(44, 44, 53, 0.3);
             padding: 0.2rem 0.5rem;
             border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .activity-post:hover {
+            background: rgba(59, 130, 246, 0.3);
+            color: #fff;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a1f, #1f1f27);
+            border: 1px solid #3b82f6;
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: #9ca3af;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            line-height: 1;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+            padding-right: 2rem;
+        }
+
+        .modal-header h2 {
+            color: #ffffff;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-header p {
+            color: #9ca3af;
+            font-size: 0.9rem;
+        }
+
+        .modal-body {
+            color: #e4e4e7;
+        }
+
+        .post-detail {
+            background: rgba(10, 10, 15, 0.5);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #2c2c35;
+        }
+
+        .post-detail-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .post-detail-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .post-detail-info h4 {
+            color: #ffffff;
+            margin-bottom: 0.25rem;
+        }
+
+        .post-detail-info span {
+            color: #9ca3af;
+            font-size: 0.9rem;
+        }
+
+        .post-detail-text {
+            color: #e4e4e7;
+            line-height: 1.6;
+            white-space: pre-wrap;
         }
 
         /* Loading State */
@@ -672,12 +895,12 @@
 
 <nav class="navbar">
     <div class="nav-container">
-        <h1>🤖 Bluesky Social Bot</h1>
+        <h1>🚀 Bluesky Growth Engine</h1>
         <div class="nav-links">
             <a href="/" class="active">Dashboard</a>
-            <a href="/followers">Followers Manager</a>
-            <a href="/settings">Settings</a>
-            <a href="/stats">Statistics</a>
+            <a href="/followers">Audience Manager</a>
+            <a href="/settings">Configuration</a>
+            <a href="/analytics">Analytics</a>
         </div>
     </div>
 </nav>
@@ -687,36 +910,60 @@
     <div class="status-banner">
         <div class="status-info">
             <div class="status-indicator">
-                <div class="status-dot {{ 'running' if status.is_running and not paused else 'paused' if paused else 'stopped' }}"></div>
-                <span class="status-text {{ 'running' if status.is_running and not paused else 'paused' if paused else 'stopped' }}">
-                    {{ 'Running' if status.is_running and not paused else 'Paused' if paused else 'Stopped' }}
+                <div class="status-dot {{ 'active' if status.is_running and not paused else 'paused' if paused else 'inactive' }}"></div>
+                <span class="status-text {{ 'active' if status.is_running and not paused else 'paused' if paused else 'inactive' }}">
+                    {{ 'ACTIVE' if status.is_running and not paused else 'PAUSED' if paused else 'INACTIVE' }}
                 </span>
             </div>
             <div class="status-time">
                 <div class="time-item">
-                    <span class="time-label">Last Run</span>
-                    <span class="time-value">{{ status.last_run or 'Never' }}</span>
+                    <span class="time-label">Last Activity</span>
+                    <span class="time-value">
+                        {% if status.last_run %}
+                            {% if status.last_run is string %}
+                                {{ status.last_run }}
+                            {% else %}
+                                {{ status.last_run.strftime('%m/%d/%Y %I:%M %p') }}
+                            {% endif %}
+                        {% else %}
+                            Never
+                        {% endif %}
+                    </span>
                 </div>
                 <div class="time-item">
-                    <span class="time-label">Next Run</span>
-                    <span class="time-value">{{ status.next_run or 'Not scheduled' }}</span>
+                    <span class="time-label">Next Scheduled</span>
+                    <span class="time-value">
+                        {% if status.next_run %}
+                            {% if status.next_run is string %}
+                                {{ status.next_run }}
+                            {% else %}
+                                {{ status.next_run.strftime('%m/%d/%Y %I:%M %p') }}
+                            {% endif %}
+                        {% else %}
+                            Not scheduled
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="time-item">
+                    <span class="time-label">Current Time</span>
+                    <span class="time-value" id="currentTime"></span>
                 </div>
             </div>
         </div>
         <div class="control-buttons">
-            <button onclick="controlBot('start')" class="btn btn-success">
+            <button onclick="controlBot('start')" class="btn btn-success" id="startBtn" {% if status.is_running and not paused %}disabled{% endif %}>
                 <span>▶</span> Start
             </button>
-            <button onclick="controlBot('pause')" class="btn btn-warning">
+            <button onclick="controlBot('pause')" class="btn btn-warning" id="pauseBtn" {% if not status.is_running or paused %}disabled{% endif %}>
                 <span>⏸</span> Pause
             </button>
-            <button onclick="controlBot('resume')" class="btn btn-primary">
+            <button onclick="controlBot('resume')" class="btn btn-primary" id="resumeBtn" {% if not paused %}disabled{% endif %}>
                 <span>▶</span> Resume
             </button>
-            <button onclick="controlBot('stop')" class="btn btn-danger">
+            <button onclick="controlBot('stop')" class="btn btn-danger" id="stopBtn" {% if not status.is_running %}disabled{% endif %}>
                 <span>⏹</span> Stop
             </button>
-            <button onclick="runNow()" class="btn btn-secondary">
+            <button onclick="runNow()" class="btn btn-secondary" {% if not status.is_running or paused %}disabled{% endif %}>
                 <span>⚡</span> Run Now
             </button>
         </div>
@@ -724,48 +971,52 @@
 
     <!-- Stats Cards -->
     <div class="stats-grid">
-        <div class="stat-card">
+        <div class="stat-card" onclick="showSavedLikes()">
             <div class="stat-icon">❤️</div>
-            <div class="stat-label">Likes Today</div>
-            <div class="stat-value">{{ stats.likes }}</div>
+            <div class="stat-label">Engagements Today</div>
+            <div class="stat-value">{{ stats.likes if stats else 0 }}</div>
             <div class="stat-trend" id="likesTrend"></div>
             <div class="progress-container">
                 <div class="progress-header">
-                    <span>Daily Limit</span>
-                    <span>{{ stats.likes }}/{{ config.MAX_LIKES_PER_DAY }}</span>
+                    <span>Daily Goal</span>
+                    <span>{{ stats.likes if stats else 0 }}/{{ config.MAX_LIKES_PER_DAY if config else 100 }}</span>
                 </div>
                 <div class="progress-bar">
-                    <div class="progress-fill" style="width: {{ (stats.likes / config.MAX_LIKES_PER_DAY * 100) | round }}%"></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon">➕</div>
-            <div class="stat-label">Follows Today</div>
-            <div class="stat-value">{{ followed_today }}</div>
-            <div class="stat-trend" id="followsTrend"></div>
-            <div class="progress-container">
-                <div class="progress-header">
-                    <span>Daily Limit</span>
-                    <span>{{ followed_today }}/{{ config.MAX_FOLLOWS_PER_DAY if config.MAX_FOLLOWS_PER_DAY > 0 else '∞' }}</span>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: {{ (followed_today / config.MAX_FOLLOWS_PER_DAY * 100) | round if config.MAX_FOLLOWS_PER_DAY > 0 else 0 }}%"></div>
+                    <div class="progress-fill" style="width: {{ ((stats.likes if stats else 0) / (config.MAX_LIKES_PER_DAY if config else 100) * 100) | round }}%"></div>
                 </div>
             </div>
         </div>
 
         <div class="stat-card">
             <div class="stat-icon">👥</div>
-            <div class="stat-label">Users Checked</div>
-            <div class="stat-value">{{ stats.users_checked }}</div>
+            <div class="stat-label">New Followers</div>
+            <div class="stat-value">{{ stats.new_followers or 0 }}</div>
+            <div class="stat-trend" id="followersTrend"></div>
+            <div class="progress-container">
+                <div class="progress-header">
+                    <span>Daily Target</span>
+                    <span>{{ stats.new_followers or 0 }}/{{ config.MAX_FOLLOWS_PER_DAY if config and config.MAX_FOLLOWS_PER_DAY > 0 else '∞' }}</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ ((stats.new_followers or 0) / (config.MAX_FOLLOWS_PER_DAY if config and config.MAX_FOLLOWS_PER_DAY > 0 else 1) * 100) | round if config and config.MAX_FOLLOWS_PER_DAY > 0 else 0 }}%"></div>
+                </div>
+            </div>
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon">📝</div>
-            <div class="stat-label">Posts Found</div>
-            <div class="stat-value">{{ stats.posts_found }}</div>
+            <div class="stat-icon">🔄</div>
+            <div class="stat-label">Followed Back</div>
+            <div class="stat-value">{{ stats.followed_back or 0 }}</div>
+            <div class="stat-trend">
+                <span class="trend-up">↑ {{ ((stats.followed_back or 0) / (stats.new_followers or 1) * 100) | round }}% return rate</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-label">Accounts Analyzed</div>
+            <div class="stat-value">{{ stats.users_checked or 0 }}</div>
+            <div class="stat-trend" id="analyzedTrend"></div>
         </div>
     </div>
 
@@ -774,89 +1025,152 @@
         <!-- Activity Chart -->
         <div class="chart-card">
             <div class="chart-header">
-                <h3>Last 7 Days Activity</h3>
-                <div class="badge">Updated daily</div>
+                <h3>Growth Overview (Last 7 Days)</h3>
+                <div class="badge">Real-time</div>
             </div>
             <div class="chart-container">
                 <canvas id="activityChart"></canvas>
             </div>
         </div>
 
-        <!-- Keyword Distribution -->
+        <!-- Keyword Performance -->
         <div class="chart-card">
             <div class="chart-header">
-                <h3>Active Keywords</h3>
-                <div class="badge" id="keywordsCount">0 total</div>
+                <h3>Keyword Performance</h3>
+                <div class="badge success" id="keywordsActive">0 active</div>
             </div>
             <div class="chart-container">
                 <canvas id="keywordsChart"></canvas>
+            </div>
+            <div class="keywords-list" id="keywordsList">
+                <!-- Will be populated with keywords -->
             </div>
         </div>
     </div>
 
     <!-- Activity Feeds -->
     <div class="activity-grid">
-        <!-- Recent Likes -->
+        <!-- Recent Engagements (Likes) -->
         <div class="activity-card">
             <div class="activity-header">
-                <h3>Recent Likes</h3>
+                <h3>Recent Engagements</h3>
                 <div class="badge">Last 10</div>
             </div>
             <div class="activity-list" id="recentLikesList">
-                {% for like in recent_likes %}
-                <div class="activity-item">
-                    <div class="activity-avatar">
-                        {{ like.user_handle[0] | upper if like.user_handle else '?' }}
+                {% if recent_likes and recent_likes|length > 0 %}
+                    {% for like in recent_likes %}
+                    <div class="activity-item" onclick="showPostDetails('{{ like.uri }}')">
+                        <div class="activity-avatar">
+                            {{ like.user_handle[0] | upper if like.user_handle else '?' }}
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-user">{{ like.user_display_name or like.user_handle }}</div>
+                            <div class="activity-handle">@{{ like.user_handle }}</div>
+                        </div>
+                        <div class="activity-time">
+                            {% if like.liked_at %}
+                                {% if like.liked_at is string %}
+                                    {{ like.liked_at }}
+                                {% else %}
+                                    {{ like.liked_at.strftime('%I:%M %p') }}
+                                {% endif %}
+                            {% else %}
+                                Just now
+                            {% endif %}
+                        </div>
+                        <div class="activity-post">
+                            {% if like.post_data and like.post_data.text %}
+                                {{ like.post_data.text[:25] + '...' if like.post_data.text|length > 25 else like.post_data.text }}
+                            {% else %}
+                                View post →
+                            {% endif %}
+                        </div>
                     </div>
-                    <div class="activity-content">
-                        <div class="activity-user">@{{ like.user_handle }}</div>
-                        <div class="activity-handle">{{ like.liked_at[:16] }}</div>
-                    </div>
-                    <div class="activity-post">
-                        {% if like.post_data and like.post_data.text %}
-                            {{ like.post_data.text[:25] + '...' if like.post_data.text|length > 25 else like.post_data.text }}
-                        {% else %}
-                            Liked a post
-                        {% endif %}
-                    </div>
-                </div>
+                    {% endfor %}
                 {% else %}
                 <div class="activity-item">
                     <div class="activity-content">
-                        <div class="activity-user">No activity yet</div>
+                        <div class="activity-user">No engagements yet</div>
                     </div>
                 </div>
-                {% endfor %}
+                {% endif %}
             </div>
         </div>
 
-        <!-- Recently Followed -->
+        <!-- New Followers & Follow Backs -->
         <div class="activity-card">
             <div class="activity-header">
-                <h3>Recently Followed</h3>
-                <div class="badge">Today</div>
+                <h3>Follower Activity</h3>
+                <div class="badge success" id="followerCount">0 new</div>
             </div>
             <div class="activity-list" id="recentFollowsList">
-                <div class="loading">Loading...</div>
+                <div class="loading">Loading follower data...</div>
             </div>
         </div>
 
-        <!-- Bot Activity Log -->
+        <!-- Bot Activity & Discovered Content -->
         <div class="activity-card">
             <div class="activity-header">
-                <h3>Bot Activity Log</h3>
-                <div class="badge">Live</div>
+                <h3>Content Discovery</h3>
+                <div class="badge warning" id="discoveredCount">0 posts</div>
             </div>
             <div class="activity-list" id="botActivity">
-                <div class="loading">Loading activity...</div>
+                <div class="loading">Scanning Bluesky...</div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Modal for Post Details -->
+<div class="modal" id="postModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+        <div class="modal-header">
+            <h2>Post Details</h2>
+            <p>View the full content of the engaged post</p>
+        </div>
+        <div class="modal-body" id="postModalBody">
+            <!-- Content will be populated dynamically -->
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Saved Likes -->
+<div class="modal" id="likesModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeLikesModal()">&times;</button>
+        <div class="modal-header">
+            <h2>Saved Engagements</h2>
+            <p>Complete history of your engagement activity</p>
+        </div>
+        <div class="modal-body" id="likesModalBody">
+            <!-- Content will be populated dynamically -->
+        </div>
+    </div>
+</div>
+
 <script>
+    // Update current time every second
+    function updateCurrentTime() {
+        const now = new Date();
+        document.getElementById('currentTime').textContent = now.toLocaleString('en-US', {
+            month: '2-digit',
+            day: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        });
+    }
+    setInterval(updateCurrentTime, 1000);
+    updateCurrentTime();
+
     // Bot control functions
     function controlBot(action) {
+        // Disable buttons during API call
+        const buttons = document.querySelectorAll('.control-buttons .btn');
+        buttons.forEach(btn => btn.disabled = true);
+        
         fetch(`/api/bot/${action}`, { method: 'POST' })
             .then(response => response.json())
             .then(data => {
@@ -869,17 +1183,24 @@
             })
             .catch(error => {
                 showNotification('Error: ' + error, 'error');
+                // Re-enable buttons on error
+                buttons.forEach(btn => btn.disabled = false);
             });
     }
 
     function runNow() {
+        const buttons = document.querySelectorAll('.control-buttons .btn');
+        buttons.forEach(btn => btn.disabled = true);
+        
         fetch('/api/bot/run-now', { method: 'POST' })
             .then(response => response.json())
             .then(data => {
                 showNotification('Bot run started! Check back in a few minutes.', 'success');
+                setTimeout(() => location.reload(), 2000);
             })
             .catch(error => {
                 showNotification('Error: ' + error, 'error');
+                buttons.forEach(btn => btn.disabled = false);
             });
     }
 
@@ -896,12 +1217,91 @@
         }, 3000);
     }
 
+    // Modal functions
+    function showPostDetails(postUri) {
+        fetch(`/api/post/${encodeURIComponent(postUri)}`)
+            .then(res => res.json())
+            .then(post => {
+                const modalBody = document.getElementById('postModalBody');
+                modalBody.innerHTML = `
+                    <div class="post-detail">
+                        <div class="post-detail-user">
+                            <div class="post-detail-avatar">${post.author_handle?.[0]?.toUpperCase() || '?'}</div>
+                            <div class="post-detail-info">
+                                <h4>${post.author_display_name || post.author_handle}</h4>
+                                <span>@${post.author_handle}</span>
+                            </div>
+                        </div>
+                        <div class="post-detail-text">${post.text || 'No content available'}</div>
+                        <div style="margin-top: 1rem; color: #9ca3af; font-size: 0.9rem;">
+                            Posted: ${new Date(post.created_at).toLocaleString('en-US', {
+                                month: '2-digit',
+                                day: '2-digit',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: true
+                            })}
+                        </div>
+                    </div>
+                `;
+                document.getElementById('postModal').classList.add('active');
+            })
+            .catch(error => {
+                showNotification('Error loading post details', 'error');
+            });
+    }
+
+    function closeModal() {
+        document.getElementById('postModal').classList.remove('active');
+    }
+
+    function showSavedLikes() {
+        fetch('/api/likes/all')
+            .then(res => res.json())
+            .then(likes => {
+                const modalBody = document.getElementById('likesModalBody');
+                
+                if (likes.length === 0) {
+                    modalBody.innerHTML = '<div class="post-detail">No engagement history yet</div>';
+                } else {
+                    modalBody.innerHTML = likes.map(like => `
+                        <div class="post-detail" onclick="showPostDetails('${like.uri}')" style="cursor: pointer;">
+                            <div class="post-detail-user">
+                                <div class="post-detail-avatar">${like.user_handle?.[0]?.toUpperCase() || '?'}</div>
+                                <div class="post-detail-info">
+                                    <h4>@${like.user_handle}</h4>
+                                    <span>${new Date(like.liked_at).toLocaleString('en-US', {
+                                        month: '2-digit',
+                                        day: '2-digit',
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                        hour12: true
+                                    })}</span>
+                                </div>
+                            </div>
+                            <div class="post-detail-text">${like.post_data?.text?.substring(0, 100) || 'View post'}...</div>
+                        </div>
+                    `).join('');
+                }
+                
+                document.getElementById('likesModal').classList.add('active');
+            })
+            .catch(error => {
+                showNotification('Error loading engagements', 'error');
+            });
+    }
+
+    function closeLikesModal() {
+        document.getElementById('likesModal').classList.remove('active');
+    }
+
     // Load activity chart
     fetch('/api/stats/historical?days=7')
         .then(res => res.json())
         .then(data => {
             // Calculate trends
-            if (data.length >= 2) {
+            if (data && data.length >= 2) {
                 const lastDay = data[data.length - 1]?.likes || 0;
                 const prevDay = data[data.length - 2]?.likes || 0;
                 const likesTrend = prevDay > 0 ? ((lastDay - prevDay) / prevDay * 100).toFixed(1) : 0;
@@ -909,20 +1309,38 @@
                 document.getElementById('likesTrend').innerHTML = likesTrend > 0 ? 
                     `<span class="trend-up">↑ ${likesTrend}% vs yesterday</span>` : 
                     `<span class="trend-down">↓ ${Math.abs(likesTrend)}% vs yesterday</span>`;
+
+                // Calculate follower trend
+                const lastFollowers = data[data.length - 1]?.new_followers || 0;
+                const prevFollowers = data[data.length - 2]?.new_followers || 0;
+                const followersTrend = prevFollowers > 0 ? ((lastFollowers - prevFollowers) / prevFollowers * 100).toFixed(1) : 0;
+                
+                document.getElementById('followersTrend').innerHTML = followersTrend > 0 ? 
+                    `<span class="trend-up">↑ ${followersTrend}% growth</span>` : 
+                    `<span class="trend-down">↓ ${Math.abs(followersTrend)}% decline</span>`;
+
+                // Calculate analyzed trend
+                const lastAnalyzed = data[data.length - 1]?.users_checked || 0;
+                const prevAnalyzed = data[data.length - 2]?.users_checked || 0;
+                const analyzedTrend = prevAnalyzed > 0 ? ((lastAnalyzed - prevAnalyzed) / prevAnalyzed * 100).toFixed(1) : 0;
+                
+                document.getElementById('analyzedTrend').innerHTML = analyzedTrend > 0 ? 
+                    `<span class="trend-up">↑ ${analyzedTrend}% activity</span>` : 
+                    `<span class="trend-down">↓ ${Math.abs(analyzedTrend)}% activity</span>`;
             }
 
             const ctx = document.getElementById('activityChart').getContext('2d');
             new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: data.map(d => {
+                    labels: data ? data.map(d => {
                         const date = new Date(d.date);
-                        return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-                    }),
+                        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    }) : [],
                     datasets: [
                         {
-                            label: 'Likes',
-                            data: data.map(d => d.likes),
+                            label: 'Engagements',
+                            data: data ? data.map(d => d.likes) : [],
                             borderColor: '#3b82f6',
                             backgroundColor: 'rgba(59, 130, 246, 0.1)',
                             tension: 0.4,
@@ -934,13 +1352,26 @@
                             pointHoverRadius: 6
                         },
                         {
-                            label: 'Follows',
-                            data: data.map(d => d.follows || 0),
+                            label: 'New Followers',
+                            data: data ? data.map(d => d.new_followers || 0) : [],
                             borderColor: '#10b981',
                             backgroundColor: 'rgba(16, 185, 129, 0.1)',
                             tension: 0.4,
                             fill: true,
                             pointBackgroundColor: '#10b981',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: 'Follow Backs',
+                            data: data ? data.map(d => d.followed_back || 0) : [],
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#f59e0b',
                             pointBorderColor: '#ffffff',
                             pointBorderWidth: 2,
                             pointRadius: 4,
@@ -993,24 +1424,28 @@
                     }
                 }
             });
+        })
+        .catch(error => {
+            console.error('Error loading chart data:', error);
         });
 
-    // Load keywords chart
-    fetch('/api/keywords')
+    // Load keywords data
+    fetch('/api/keywords/performance')
         .then(res => res.json())
-        .then(keywords => {
-            const activeCount = keywords.filter(k => k.active).length;
-            const inactiveCount = keywords.length - activeCount;
+        .then(data => {
+            const activeKeywords = data ? data.filter(k => k.active) : [];
+            const totalKeywords = data ? data.length : 0;
             
-            document.getElementById('keywordsCount').textContent = `${keywords.length} total`;
+            document.getElementById('keywordsActive').textContent = `${activeKeywords.length} active`;
             
+            // Update keywords chart
             const keywordsCtx = document.getElementById('keywordsChart').getContext('2d');
             new Chart(keywordsCtx, {
                 type: 'doughnut',
                 data: {
                     labels: ['Active', 'Inactive'],
                     datasets: [{
-                        data: [activeCount, inactiveCount],
+                        data: [activeKeywords.length, totalKeywords - activeKeywords.length],
                         backgroundColor: ['#10b981', '#2c2c35'],
                         borderColor: ['#059669', '#3b3b45'],
                         borderWidth: 2,
@@ -1041,67 +1476,116 @@
                     }
                 }
             });
+
+            // Populate keywords list with performance metrics
+            const keywordsList = document.getElementById('keywordsList');
+            if (data && data.length > 0) {
+                keywordsList.innerHTML = data.slice(0, 10).map(keyword => `
+                    <div class="keyword-item">
+                        <span class="keyword-name">${keyword.text}</span>
+                        <div class="keyword-stats">
+                            <span class="keyword-count">${keyword.posts_found || 0} posts</span>
+                            <span class="keyword-badge ${keyword.active ? 'active' : 'inactive'}">
+                                ${keyword.active ? 'Active' : 'Inactive'}
+                            </span>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                keywordsList.innerHTML = '<div class="keyword-item">No keywords configured</div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading keywords:', error);
         });
 
-    // Load recent follows
-    fetch('/api/followed-users')
+    // Load follower activity
+    fetch('/api/followers/activity')
         .then(res => res.json())
-        .then(users => {
-            const recentFollows = users
-                .sort((a, b) => new Date(b.followed_at) - new Date(a.followed_at))
-                .slice(0, 10);
+        .then(data => {
+            const recentFollows = data?.follows || [];
+            const followBacks = data?.follow_backs || [];
+            
+            document.getElementById('followerCount').textContent = `${recentFollows.length} new`;
             
             const list = document.getElementById('recentFollowsList');
             
-            if (recentFollows.length === 0) {
-                list.innerHTML = '<div class="activity-item"><div class="activity-content">No follows yet</div></div>';
+            if (recentFollows.length === 0 && followBacks.length === 0) {
+                list.innerHTML = '<div class="activity-item"><div class="activity-content">No follower activity yet</div></div>';
                 return;
             }
             
-            list.innerHTML = recentFollows.map(user => `
+            // Combine and sort by date
+            const allActivity = [
+                ...recentFollows.map(f => ({...f, type: 'new'})),
+                ...followBacks.map(f => ({...f, type: 'follow_back'}))
+            ].sort((a, b) => new Date(b.followed_at) - new Date(a.followed_at));
+            
+            list.innerHTML = allActivity.slice(0, 10).map(item => `
                 <div class="activity-item">
-                    <div class="activity-avatar">
-                        ${(user.display_name?.[0] || user.handle?.[0] || '?').toUpperCase()}
+                    <div class="activity-avatar" style="background: ${item.type === 'follow_back' ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'linear-gradient(135deg, #3b82f6, #8b5cf6)'}">
+                        ${item.user_handle?.[0]?.toUpperCase() || '?'}
                     </div>
                     <div class="activity-content">
-                        <div class="activity-user">${user.display_name || user.handle}</div>
-                        <div class="activity-handle">@${user.handle}</div>
+                        <div class="activity-user">@${item.user_handle}</div>
+                        <div class="activity-handle">
+                            ${item.type === 'follow_back' ? '🔄 Followed you back' : '➕ New follower'}
+                        </div>
                     </div>
-                    <div class="activity-time">${new Date(user.followed_at).toLocaleString()}</div>
+                    <div class="activity-time">${new Date(item.followed_at).toLocaleString('en-US', {
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
+                    })}</div>
                 </div>
             `).join('');
         })
         .catch(error => {
-            document.getElementById('recentFollowsList').innerHTML = '<div class="activity-item">Error loading follows</div>';
+            document.getElementById('recentFollowsList').innerHTML = '<div class="activity-item">Error loading follower data</div>';
+            console.error('Error loading followers:', error);
         });
 
-    // Load bot activity
-    function loadBotActivity() {
-        fetch('/api/activity')
+    // Load discovered content
+    function loadDiscoveredContent() {
+        fetch('/api/discovered-content')
             .then(res => res.json())
             .then(data => {
+                const posts = data?.posts || [];
+                document.getElementById('discoveredCount').textContent = `${posts.length} posts`;
+                
                 const list = document.getElementById('botActivity');
                 
-                if (!data || data.length === 0) {
-                    list.innerHTML = '<div class="activity-item">No recent activity</div>';
+                if (posts.length === 0) {
+                    list.innerHTML = '<div class="activity-item"><div class="activity-content">No content discovered yet</div></div>';
                     return;
                 }
                 
-                list.innerHTML = data.slice(0, 10).map(a => `
-                    <div class="activity-item">
-                        <div class="activity-avatar">
-                            ${a.action[0].toUpperCase()}
+                list.innerHTML = posts.slice(0, 10).map(post => `
+                    <div class="activity-item" onclick="showPostDetails('${post.uri}')">
+                        <div class="activity-avatar" style="background: linear-gradient(135deg, #8b5cf6, #ec4899);">
+                            🔍
                         </div>
                         <div class="activity-content">
-                            <div class="activity-user">${a.action}</div>
-                            <div class="activity-handle">@${a.user_handle || 'system'}</div>
+                            <div class="activity-user">Found via: ${post.keyword || 'keyword match'}</div>
+                            <div class="activity-handle">@${post.author_handle}</div>
                         </div>
-                        <div class="activity-time">${new Date(a.created_at).toLocaleTimeString()}</div>
+                        <div class="activity-time">${new Date(post.discovered_at).toLocaleString('en-US', {
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true
+                        })}</div>
+                        <div class="activity-post">
+                            ${post.text?.substring(0, 20) || 'View'}...
+                        </div>
                     </div>
                 `).join('');
             })
             .catch(() => {
-                document.getElementById('botActivity').innerHTML = '<div class="activity-item">Failed to load activity</div>';
+                document.getElementById('botActivity').innerHTML = '<div class="activity-item">Failed to load discovered content</div>';
             });
     }
 
@@ -1110,14 +1594,29 @@
         fetch('/api/stats/today')
             .then(res => res.json())
             .then(stats => {
-                document.querySelector('.stat-card:first-child .stat-value').textContent = stats.likes;
-            });
+                if (stats) {
+                    document.querySelector('.stat-card:first-child .stat-value').textContent = stats.likes || 0;
+                }
+            })
+            .catch(error => console.error('Error refreshing stats:', error));
         
-        loadBotActivity();
+        loadDiscoveredContent();
     }, 30000);
 
     // Initial load
-    loadBotActivity();
+    loadDiscoveredContent();
+
+    // Close modals when clicking outside
+    window.onclick = function(event) {
+        const postModal = document.getElementById('postModal');
+        const likesModal = document.getElementById('likesModal');
+        if (event.target === postModal) {
+            postModal.classList.remove('active');
+        }
+        if (event.target === likesModal) {
+            likesModal.classList.remove('active');
+        }
+    }
 </script>
 
 </body>
