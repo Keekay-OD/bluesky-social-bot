@@ -19,13 +19,15 @@ class BlueskyBot:
         self.thread = None
         self.paused = False
         self.stop_event = threading.Event()
+        self._stop_lock = threading.Lock()
+        self._thread_stopped = True
 
         # Session counters
         self.followed_today = 0
         self.likes_today = 0
         self.reposts_today = 0
 
-        # Lifetime counters (optional)
+        # Lifetime counters
         self.total_actions = 0
         
         # Follower tracking
@@ -37,15 +39,27 @@ class BlueskyBot:
     def jitter(self, min_s=2, max_s=5):
         delay = random.uniform(min_s, max_s)
         print(f"⏱️ Sleeping {delay:.2f}s")
-        time.sleep(delay)
+        
+        # Break sleep into 0.5 second chunks to check stop_event
+        sleep_start = time.time()
+        while time.time() - sleep_start < delay:
+            if self.stop_event.is_set():
+                return
+            time.sleep(0.5)
 
     def retry(self, func, retries=3, base_delay=2):
         for attempt in range(retries):
+            if self.stop_event.is_set():
+                return None
             try:
                 return func()
             except Exception as e:
                 print(f"⚠️ Retry {attempt+1}/{retries}: {e}")
-                time.sleep(base_delay * (attempt + 1))
+                # Check stop_event during retry delay
+                for _ in range(base_delay * (attempt + 1)):
+                    if self.stop_event.is_set():
+                        return None
+                    time.sleep(1)
         return None
 
     def safe_get(self, obj, attr, default=None):
@@ -64,10 +78,13 @@ class BlueskyBot:
             return False
 
     # -------------------------------------------------
-    # FOLLOWER SYNC (NEW)
+    # FOLLOWER SYNC
     # -------------------------------------------------
     def sync_followers(self):
         """Sync our followers list and track changes"""
+        if self.stop_event.is_set():
+            return
+            
         try:
             print("\n🔄 Syncing followers...")
             
@@ -76,6 +93,9 @@ class BlueskyBot:
             cursor = None
             
             while True:
+                if self.stop_event.is_set():
+                    return
+                    
                 response = self.client.get_followers(self.client.me.did, cursor=cursor, limit=100)
                 
                 for follower in response.followers:
@@ -83,6 +103,7 @@ class BlueskyBot:
                         'did': follower.did,
                         'handle': follower.handle,
                         'display_name': getattr(follower, 'display_name', None),
+                        'avatar': getattr(follower, 'avatar', None),
                         'profile_data': {
                             'description': getattr(follower, 'description', None),
                             'avatar': getattr(follower, 'avatar', None),
@@ -95,7 +116,10 @@ class BlueskyBot:
                 if not response.cursor:
                     break
                 cursor = response.cursor
-                time.sleep(1)
+                
+                # Check stop_event during pagination
+                if self.stop_event.wait(1):
+                    return
             
             # Sync with database
             new_followers, unfollowers = self.db.sync_followers(followers)
@@ -106,7 +130,8 @@ class BlueskyBot:
             print(f"   • Unfollowers: {len(unfollowers)}")
             
             # Check follow-back status for users we followed
-            self.check_follow_backs()
+            if not self.stop_event.is_set():
+                self.check_follow_backs()
             
             self.last_follower_sync = datetime.now()
             
@@ -115,9 +140,15 @@ class BlueskyBot:
     
     def check_follow_backs(self):
         """Check which users we followed are following us back"""
+        if self.stop_event.is_set():
+            return
+            
         users_to_check = self.db.get_users_to_check_follow_back(hours=24)
         
         for user in users_to_check:
+            if self.stop_event.is_set():
+                return
+                
             try:
                 # Check if they follow us
                 follows = self.client.app.bsky.graph.get_follows({
@@ -137,7 +168,11 @@ class BlueskyBot:
                         user.get('display_name')
                     )
                 
-                time.sleep(2)
+                # Check stop_event during delay
+                for _ in range(2):
+                    if self.stop_event.is_set():
+                        return
+                    time.sleep(1)
                 
             except Exception as e:
                 print(f"⚠️ Error checking follow-back for @{user['handle']}: {e}")
@@ -149,6 +184,9 @@ class BlueskyBot:
         all_posts = []
 
         for keyword in keywords[:5]:
+            if self.stop_event.is_set():
+                return []
+                
             try:
                 print(f"🔍 Searching: {keyword}")
 
@@ -172,6 +210,7 @@ class BlueskyBot:
                         'author_did': post.author.did,
                         'author_handle': post.author.handle,
                         'author_display_name': getattr(post.author, 'display_name', None),
+                        'author_avatar': getattr(post.author, 'avatar', None),
                         'text': getattr(post.record, 'text', ''),
                         'keyword': keyword,
                         'created_at': getattr(post.record, 'created_at', None)
@@ -216,14 +255,14 @@ class BlueskyBot:
         # Don't engage with users who unfollowed us recently
         unfollowers = self.db.get_unfollowers(days=7)
         if any(u['did'] == post['author_did'] for u in unfollowers):
-            score -= 5  # Strong penalty
+            score -= 5
 
         return score >= 3
 
     # -------------------------------------------------
     # FOLLOW
     # -------------------------------------------------
-    def follow_user(self, did, handle, name=None):
+    def follow_user(self, did, handle, name=None, avatar=None):
         if not Config.AUTO_FOLLOW:
             return False
 
@@ -244,7 +283,7 @@ class BlueskyBot:
 
             self.retry(lambda: self.client.follow(did))
 
-            self.db.add_follow(did, handle, name)
+            self.db.add_follow(did, handle, name, avatar)
             self.followed_today += 1
             return True
 
@@ -271,7 +310,12 @@ class BlueskyBot:
                 post['uri'],
                 post['author_did'],
                 post['author_handle'],
-                {"text": post['text'][:150]}
+                {
+                    "text": post['text'][:150],
+                    "author_avatar": post.get('author_avatar'),
+                    "author_display_name": post.get('author_display_name'),
+                    "created_at": post.get('created_at')
+                }
             )
 
             self.likes_today += 1
@@ -304,6 +348,9 @@ class BlueskyBot:
     # PROCESS POST
     # -------------------------------------------------
     def process_post(self, post):
+        if self.stop_event.is_set():
+            return 0
+            
         print(f"\n📌 @{post['author_handle']}")
         print(f"📝 {post['text'][:80]}...")
 
@@ -313,7 +360,8 @@ class BlueskyBot:
 
         actions = 0
 
-        if self.follow_user(post['author_did'], post['author_handle'], post['author_display_name']):
+        if self.follow_user(post['author_did'], post['author_handle'], 
+                           post['author_display_name'], post.get('author_avatar')):
             actions += 1
 
         if random.random() < 0.6:
@@ -330,10 +378,10 @@ class BlueskyBot:
     # MAIN RUN
     # -------------------------------------------------
     def run_once(self):
-        print(f"\n🚀 Run @ {datetime.now()}")
-
-        if self.paused or not self.running:
+        if self.stop_event.is_set() or self.paused or not self.running:
             return
+
+        print(f"\n🚀 Run @ {datetime.now()}")
 
         if not self.client.me:
             if not self.login():
@@ -342,7 +390,8 @@ class BlueskyBot:
         # Sync followers every hour
         if (self.last_follower_sync is None or 
             datetime.now() - self.last_follower_sync > timedelta(hours=1)):
-            self.sync_followers()
+            if not self.stop_event.is_set():
+                self.sync_followers()
 
         keywords = self.db.get_active_keywords()
         if not keywords:
@@ -350,6 +399,9 @@ class BlueskyBot:
             return
 
         posts = self.search_posts_by_keywords(keywords)
+        
+        if self.stop_event.is_set():
+            return
 
         random.shuffle(posts)
 
@@ -377,59 +429,109 @@ class BlueskyBot:
         print(f"Total actions: {self.total_actions}")
 
     # -------------------------------------------------
-    # LOOP
+    # LOOP - COMPLETELY REWRITTEN WITH PROPER STOP CHECKING
     # -------------------------------------------------
     def _run_loop(self):
+        self._thread_stopped = False
+        print("🟢 Bot loop started")
+        
         while not self.stop_event.is_set():
             try:
-                if not self.paused:
+                # Only run if not paused and running
+                if not self.paused and self.running and not self.stop_event.is_set():
                     self.run_once()
 
+                # Calculate wait time
                 wait = Config.CHECK_INTERVAL + random.randint(-30, 60)
+                wait = max(10, wait)  # Minimum 10 seconds
                 print(f"💤 Sleeping {wait}s")
-
-                if self.stop_event.wait(wait):
-                    break
+                
+                # CRITICAL FIX: Break sleep into 1-second chunks and check stop_event each time
+                for _ in range(wait):
+                    if self.stop_event.is_set():
+                        print("🛑 Stop event detected during sleep")
+                        break
+                    time.sleep(1)
 
             except Exception as e:
                 print(f"⚠️ Loop crash: {e}")
-                if self.stop_event.wait(120):
-                    break
+                # Short sleep on error, checking stop_event
+                for _ in range(5):
+                    if self.stop_event.is_set():
+                        break
+                    time.sleep(1)
+        
+        self._thread_stopped = True
+        print("🛑 Bot loop ended")
 
     # -------------------------------------------------
-    # CONTROL
+    # CONTROL - FIXED WITH PROPER THREAD MANAGEMENT
     # -------------------------------------------------
     def start(self):
-        if self.thread and self.thread.is_alive():
-            return
+        with self._stop_lock:
+            # Kill any existing thread first
+            if self.thread and self.thread.is_alive():
+                print("⚠️ Stopping existing thread...")
+                self.stop()
+                
+            # Wait for thread to fully stop
+            time.sleep(1)
+            
+            # Reset everything
+            self.running = True
+            self.paused = False
+            self.stop_event.clear()
+            
+            # Reset counters for new session
+            self.followed_today = 0
+            self.likes_today = 0
+            self.reposts_today = 0
+            self.total_actions = 0
 
-        self.running = True
-        self.paused = False
-        self.stop_event.clear()
+            # Create and start new thread
+            self.thread = threading.Thread(target=self._run_loop, daemon=True)
+            self.thread.start()
 
-        self.thread = threading.Thread(target=self._run_loop, daemon=True)
-        self.thread.start()
-
-        print("✅ Bot started")
-        self.db.update_bot_status(is_running=True)
+            print("✅ Bot started")
+            self.db.update_bot_status(is_running=True)
 
     def stop(self):
-        print("⏹️ Stopping...")
-
-        self.running = False
-        self.stop_event.set()
-
-        if self.thread:
-            self.thread.join(timeout=5)
-
-        self.db.update_bot_status(is_running=False)
-        print("✅ Stopped")
+        print("⏹️ Stopping bot...")
+        
+        with self._stop_lock:
+            # Signal stop FIRST
+            self.running = False
+            self.stop_event.set()
+            
+            # Wait for thread to finish
+            if self.thread and self.thread.is_alive():
+                print("⏳ Waiting for thread to stop...")
+                # Wait up to 15 seconds
+                self.thread.join(timeout=15)
+                
+                if self.thread.is_alive():
+                    print("⚠️ Thread still alive after 15 seconds - forcing cleanup")
+                    # Force additional checks
+                    self.stop_event.set()
+                    self.running = False
+                else:
+                    print("✅ Thread stopped")
+            
+            self.thread = None
+            self.db.update_bot_status(is_running=False)
+            print("✅ Bot stopped")
 
     def pause(self):
         self.paused = True
-        print("⏸️ Paused")
+        print("⏸️ Bot paused")
+        self.db.update_bot_status(is_running=True)  # Keep running status but paused
 
     def resume(self):
         self.paused = False
         self.running = True
-        print("▶️ Resumed")
+        print("▶️ Bot resumed")
+        self.db.update_bot_status(is_running=True)
+    
+    def is_running(self):
+        """Check if bot is actually running"""
+        return self.running and self.thread and self.thread.is_alive() and not self.stop_event.is_set()

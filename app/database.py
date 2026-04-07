@@ -194,7 +194,16 @@ class Database:
                 
                 # Insert default bot status
                 c.execute("INSERT OR IGNORE INTO bot_status (id, is_running) VALUES (1, 1)")
+                c.execute("PRAGMA table_info(followed_users)")
+                columns = [column[1] for column in c.fetchall()]
+                if 'avatar' not in columns:
+                    c.execute("ALTER TABLE followed_users ADD COLUMN avatar TEXT")
                 
+                # Check if avatar column exists in my_followers
+                c.execute("PRAGMA table_info(my_followers)")
+                columns = [column[1] for column in c.fetchall()]
+                if 'avatar' not in columns:
+                    c.execute("ALTER TABLE my_followers ADD COLUMN avatar TEXT")                
                 # Insert default keywords
                 default_keywords = getattr(Config, 'DEFAULT_KEYWORDS', ['bikes', 'cycling', 'bicycle'])
                 for keyword in default_keywords:
@@ -297,19 +306,20 @@ class Database:
             return c.rowcount
     
     # Followed users methods (users WE followed)
-    def add_follow(self, user_did, user_handle, display_name=None):
+    def add_follow(self, user_did, user_handle, display_name=None, avatar=None):
         with self.get_cursor() as c:
             try:
                 c.execute("""
-                    INSERT INTO followed_users (did, handle, display_name, followed_at, last_checked)
-                    VALUES (?, ?, ?, ?, ?)
-                """, (user_did, user_handle, display_name, datetime.now(), datetime.now()))
+                    INSERT INTO followed_users (did, handle, display_name, followed_at, last_checked, avatar)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """, (user_did, user_handle, display_name, datetime.now(), datetime.now(), avatar))
                 
                 # Update daily stats
                 self.update_daily_stats(follows=1)
                 return True
             except sqlite3.IntegrityError:
                 return False
+
     
     def was_followed(self, user_did):
         with self.get_cursor() as c:
@@ -741,6 +751,80 @@ class Database:
                     unfollowers.append(unfollower)
         
         return new_followers, unfollowers
+    
+    # Add these methods to the Database class in database.py
+
+    def get_followed_total(self):
+        """Get total number of users we've ever followed"""
+        with self.get_cursor() as c:
+            c.execute("SELECT COUNT(*) FROM followed_users")
+            return c.fetchone()[0]
+
+    def get_follow_backs_total(self):
+        """Get total number of follow backs ever"""
+        with self.get_cursor() as c:
+            c.execute("SELECT COUNT(*) FROM follow_backs")
+            return c.fetchone()[0]
+
+    def get_follow_backs_count_today(self):
+        """Get number of follow backs today"""
+        with self.get_cursor() as c:
+            today = datetime.now().date().isoformat()
+            c.execute("""
+                SELECT COUNT(*) FROM follow_backs 
+                WHERE date(followed_back_at) = ?
+            """, (today,))
+            return c.fetchone()[0]
+
+    def get_new_followers_total(self):
+        """Get total new followers ever"""
+        with self.get_cursor() as c:
+            c.execute("SELECT COUNT(*) FROM my_followers")
+            return c.fetchone()[0]
+
+    def get_keyword_performance(self):
+        """Get performance metrics for keywords"""
+        with self.get_cursor() as c:
+            c.execute("""
+                SELECT 
+                    k.keyword,
+                    k.active,
+                    COUNT(DISTINCT lp.uri) as engagements,
+                    COUNT(DISTINCT fu.did) as follows
+                FROM keywords k
+                LEFT JOIN liked_posts lp ON lp.post_data LIKE '%' || k.keyword || '%'
+                LEFT JOIN followed_users fu ON fu.handle LIKE '%' || k.keyword || '%'
+                WHERE k.active = 1
+                GROUP BY k.keyword
+                ORDER BY engagements DESC
+            """)
+            return [dict(row) for row in c.fetchall()]
+
+    def get_discovered_content(self, limit=20):
+        """Get recently discovered posts"""
+        with self.get_cursor() as c:
+            c.execute("""
+                SELECT 
+                    lp.uri,
+                    lp.user_handle as author_handle,
+                    lp.user_did as author_did,
+                    lp.liked_at as discovered_at,
+                    lp.post_data
+                FROM liked_posts lp
+                ORDER BY lp.liked_at DESC
+                LIMIT ?
+            """, (limit,))
+            results = []
+            for row in c.fetchall():
+                result = dict(row)
+                if result.get('post_data'):
+                    import json
+                    post_data = json.loads(result['post_data']) if isinstance(result['post_data'], str) else result['post_data']
+                    result['text'] = post_data.get('text', '')
+                    result['author_avatar'] = post_data.get('author_avatar')
+                    result['author_display_name'] = post_data.get('author_display_name')
+                results.append(result)
+            return results
     
     # Activity feed methods
     def get_follower_activity(self, limit=20):

@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configuration - Bluesky Social Bot</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <title>Configuration - Bluesky Bot</title>
     <style>
-        /* Dark theme enhancements */
         * {
             margin: 0;
             padding: 0;
@@ -14,16 +12,15 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #0f0f13;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #0a0a0f;
             color: #e4e4e7;
             line-height: 1.6;
         }
 
         .navbar {
-            background: rgba(26, 26, 31, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(44, 44, 53, 0.5);
+            background: #1a1a1f;
+            border-bottom: 1px solid #2c2c35;
             padding: 1rem 0;
             position: sticky;
             top: 0;
@@ -31,7 +28,7 @@
         }
 
         .nav-container {
-            max-width: 1600px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 0 2rem;
             display: flex;
@@ -39,38 +36,24 @@
             align-items: center;
         }
 
-        .nav-container h1 {
-            font-size: 1.5rem;
-            background: linear-gradient(135deg, #60a5fa, #a78bfa);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 700;
-        }
-
         .nav-links {
             display: flex;
-            gap: 1rem;
+            gap: 2rem;
         }
 
         .nav-links a {
             color: #9ca3af;
             text-decoration: none;
             font-weight: 500;
-            transition: all 0.2s;
-            padding: 0.5rem 1.2rem;
-            border-radius: 8px;
-            position: relative;
+            transition: color 0.2s;
+            padding: 0.5rem 0;
+            border-bottom: 2px solid transparent;
         }
 
-        .nav-links a:hover {
-            color: #fff;
-            background: rgba(59, 130, 246, 0.1);
-        }
-
+        .nav-links a:hover,
         .nav-links a.active {
-            color: #fff;
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            color: #ffffff;
+            border-bottom-color: #3b82f6;
         }
 
         .container {
@@ -81,21 +64,22 @@
 
         .configuration-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            grid-template-columns: 1fr 1fr;
             gap: 2rem;
         }
 
         .card {
             background: #1a1a1f;
             border-radius: 12px;
-            padding: 1.5rem;
+            padding: 2rem;
             border: 1px solid #2c2c35;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
 
         .card h2 {
-            color: #ffffff;
+            font-size: 1.5rem;
             margin-bottom: 0.5rem;
-            font-size: 1.25rem;
+            color: #ffffff;
             display: flex;
             align-items: center;
             gap: 0.5rem;
@@ -103,63 +87,51 @@
 
         .description {
             color: #9ca3af;
-            font-size: 0.875rem;
+            font-size: 0.9rem;
             margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #2c2c35;
-        }
-
-        /* Credentials Section */
-        .credentials-form {
-            margin-bottom: 2rem;
         }
 
         .input-group {
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
 
         .input-group label {
             display: block;
-            color: #d1d5db;
-            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+            color: #e4e4e7;
             font-weight: 500;
-            margin-bottom: 0.25rem;
+            font-size: 0.9rem;
         }
 
         .input-group input {
             width: 100%;
-            padding: 0.75rem;
-            background: #0f0f13;
-            border: 1px solid #2c2c35;
-            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            background: #2c2c35;
+            border: 1px solid #3b3b45;
+            border-radius: 8px;
             color: #ffffff;
-            font-size: 0.875rem;
+            font-size: 1rem;
+            transition: all 0.2s;
         }
 
         .input-group input:focus {
             outline: none;
             border-color: #3b82f6;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
         }
 
-        .btn-warning {
-            background: #f59e0b;
-            color: #ffffff;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 6px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background 0.2s;
+        .input-group small {
+            display: block;
+            margin-top: 0.5rem;
+            color: #9ca3af;
+            font-size: 0.8rem;
         }
 
-        .btn-warning:hover {
-            background: #d97706;
-        }
-
-        /* Keyword Groups */
         .groups-section {
-            margin-bottom: 2rem;
+            background: #2c2c35;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
         }
 
         .groups-list {
@@ -167,86 +139,104 @@
             flex-wrap: wrap;
             gap: 0.5rem;
             margin-bottom: 1rem;
+            min-height: 2.5rem;
         }
 
         .group-tag {
-            background: #2c2c35;
-            color: #e4e4e7;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 1px solid #3b3b45;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .group-tag.active {
             background: #3b82f6;
             color: white;
-            border-color: #2563eb;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
-        .group-tag .delete-group {
-            opacity: 0;
-            transition: opacity 0.2s;
+        .group-tag:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        .delete-group {
             background: none;
             border: none;
-            color: inherit;
+            color: white;
             font-size: 1.2rem;
             cursor: pointer;
-            padding: 0 4px;
+            padding: 0 0.25rem;
+            line-height: 1;
+            opacity: 0.7;
+            transition: opacity 0.2s;
         }
 
-        .group-tag:hover .delete-group {
+        .delete-group:hover {
             opacity: 1;
         }
 
         .add-group-form {
             display: flex;
             gap: 0.5rem;
-            margin-top: 0.5rem;
         }
 
         .add-group-form input {
             flex: 1;
             padding: 0.5rem;
-            background: #0f0f13;
-            border: 1px solid #2c2c35;
+            background: #1a1a1f;
+            border: 1px solid #3b3b45;
             border-radius: 6px;
             color: #ffffff;
         }
 
-        .btn-secondary {
+        .keyword-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #2c2c35;
+            border-radius: 8px;
+            padding: 0.5rem;
+        }
+
+        .keyword-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
             background: #2c2c35;
-            color: #ffffff;
-            border: 1px solid #3b3b45;
-            padding: 0.5rem 1rem;
             border-radius: 6px;
-            cursor: pointer;
+            margin-bottom: 0.5rem;
             transition: all 0.2s;
         }
 
-        .btn-secondary:hover {
+        .keyword-item:hover {
             background: #3b3b45;
+            transform: translateX(2px);
         }
 
-        /* Keyword input with autocomplete */
+        .keyword-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .keyword-text {
+            font-weight: 500;
+            color: #ffffff;
+        }
+
+        .keyword-group-badge {
+            background: #6b7280;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+
         .keyword-input-container {
             position: relative;
             margin-bottom: 1rem;
-        }
-
-        #newKeyword {
-            width: 100%;
-            padding: 0.75rem;
-            background: #0f0f13;
-            border: 1px solid #2c2c35;
-            border-radius: 6px;
-            color: #ffffff;
-            font-size: 0.875rem;
         }
 
         .autocomplete-list {
@@ -254,10 +244,9 @@
             top: 100%;
             left: 0;
             right: 0;
-            background: #1a1a1f;
-            border: 1px solid #2c2c35;
-            border-radius: 6px;
-            margin-top: 4px;
+            background: #2c2c35;
+            border: 1px solid #3b3b45;
+            border-radius: 8px;
             max-height: 200px;
             overflow-y: auto;
             z-index: 10;
@@ -269,13 +258,14 @@
         }
 
         .autocomplete-item {
-            padding: 0.5rem 1rem;
+            padding: 0.75rem 1rem;
             cursor: pointer;
             transition: background 0.2s;
         }
 
         .autocomplete-item:hover {
-            background: #2c2c35;
+            background: #3b82f6;
+            color: white;
         }
 
         .quick-add {
@@ -284,62 +274,74 @@
             margin-bottom: 1rem;
         }
 
+        .btn-primary, .btn-secondary, .btn-success, .btn-warning, .btn-danger {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #2c2c35;
+            color: #e4e4e7;
+        }
+
+        .btn-secondary:hover {
+            background: #3b3b45;
+        }
+
         .btn-success {
             background: #10b981;
-            color: #ffffff;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 6px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background 0.2s;
+            color: white;
         }
 
         .btn-success:hover {
             background: #059669;
         }
 
-        /* Keyword list */
-        .keyword-list {
-            max-height: 400px;
-            overflow-y: auto;
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
         }
 
-        .keyword-item {
-            background: #0f0f13;
-            border: 1px solid #2c2c35;
-            border-radius: 6px;
-            padding: 0.75rem;
-            margin-bottom: 0.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .btn-warning:hover {
+            background: #d97706;
         }
 
-        .keyword-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
+        .btn-danger {
+            background: #ef4444;
+            color: white;
         }
 
-        .keyword-text {
-            font-weight: 500;
-            color: #ffffff;
+        .btn-danger:hover {
+            background: #dc2626;
         }
 
-        .keyword-group-badge {
-            background: #2c2c35;
-            color: #9ca3af;
+        .btn-small {
             padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
             border-radius: 4px;
-            font-size: 0.75rem;
         }
 
         .switch {
             position: relative;
             display: inline-block;
-            width: 40px;
-            height: 20px;
+            width: 50px;
+            height: 24px;
+            margin-left: 0.5rem;
         }
 
         .switch input {
@@ -355,16 +357,16 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: #2c2c35;
+            background-color: #4b5563;
             transition: .3s;
-            border-radius: 20px;
+            border-radius: 24px;
         }
 
         .slider:before {
             position: absolute;
             content: "";
-            height: 16px;
-            width: 16px;
+            height: 20px;
+            width: 20px;
             left: 2px;
             bottom: 2px;
             background-color: white;
@@ -373,53 +375,30 @@
         }
 
         input:checked + .slider {
-            background-color: #10b981;
+            background-color: #3b82f6;
         }
 
         input:checked + .slider:before {
-            transform: translateX(20px);
-        }
-
-        .btn-small {
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn-danger {
-            background: #ef4444;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #dc2626;
-        }
-
-        /* Configuration form */
-        .configuration-form {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
+            transform: translateX(26px);
         }
 
         .setting-item {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
+            margin-bottom: 1.5rem;
         }
 
         .setting-item label {
-            color: #d1d5db;
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #e4e4e7;
             font-weight: 500;
         }
 
         .setting-item input[type="number"] {
-            padding: 0.5rem;
-            background: #0f0f13;
-            border: 1px solid #2c2c35;
-            border-radius: 6px;
+            width: 100%;
+            padding: 0.75rem;
+            background: #2c2c35;
+            border: 1px solid #3b3b45;
+            border-radius: 8px;
             color: #ffffff;
         }
 
@@ -430,31 +409,11 @@
         }
 
         .range-inputs input {
-            width: 80px;
+            flex: 1;
         }
 
         .range-inputs span {
             color: #9ca3af;
-        }
-
-        .setting-item small {
-            color: #9ca3af;
-            font-size: 0.75rem;
-        }
-
-        .btn-primary {
-            background: #3b82f6;
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 6px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .btn-primary:hover {
-            background: #2563eb;
         }
 
         .checkbox-group {
@@ -471,30 +430,103 @@
 
         .status-message {
             margin-top: 1rem;
-            padding: 0.75rem;
-            border-radius: 6px;
+            padding: 1rem;
+            border-radius: 8px;
             display: none;
         }
 
         .status-message.success {
             display: block;
-            background: #065f46;
-            color: #d1fae5;
+            background: rgba(16, 185, 129, 0.2);
             border: 1px solid #10b981;
+            color: #10b981;
         }
 
         .status-message.error {
             display: block;
-            background: #7f1d1d;
-            color: #fee2e2;
+            background: rgba(239, 68, 68, 0.2);
             border: 1px solid #ef4444;
+            color: #ef4444;
         }
 
         .status-message.warning {
             display: block;
-            background: #92400e;
-            color: #fef3c7;
+            background: rgba(245, 158, 11, 0.2);
             border: 1px solid #f59e0b;
+            color: #f59e0b;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .stats-badge {
+            background: #2c2c35;
+            color: #9ca3af;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #9ca3af;
+        }
+
+        .confirm-dialog {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #1a1a1f;
+            border: 1px solid #2c2c35;
+            border-radius: 12px;
+            padding: 2rem;
+            z-index: 1000;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .confirm-dialog h3 {
+            margin-bottom: 1rem;
+        }
+
+        .confirm-dialog-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 999;
+        }
+
+        .suggestion-badge {
+            background: #4b5563;
+            color: #e4e4e7;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            margin-left: 0.5rem;
         }
     </style>
 </head>
@@ -521,21 +553,22 @@
                 <div class="credentials-form">
                     <div class="input-group">
                         <label>Handle/Username</label>
-                        <input type="text" id="blueskyHandle" value="{{ config.BLUESKY_HANDLE }}" placeholder="username.bsky.social">
+                        <input type="text" id="blueskyHandle" placeholder="username.bsky.social">
                     </div>
                     <div class="input-group">
                         <label>Password</label>
-                        <input type="password" id="blueskyPassword" value="{{ config.BLUESKY_PASSWORD }}" placeholder="App password">
+                        <input type="password" id="blueskyPassword" placeholder="App password">
+                        <small>Use an App Password, not your main password</small>
                     </div>
                     <button onclick="saveCredentials()" class="btn-warning">Save & Restart Bot</button>
                 </div>
 
                 <h2 style="margin-top: 2rem;">📋 Keyword Groups</h2>
-                <p class="description">Create groups for different campaigns</p>
+                <p class="description">Organize keywords into campaigns</p>
                 
                 <div class="groups-section">
                     <div class="groups-list" id="groupsList">
-                        <!-- Groups will be populated here -->
+                        <!-- Groups will be populated from database -->
                     </div>
                     
                     <div class="add-group-form">
@@ -545,13 +578,14 @@
                 </div>
 
                 <h2>🔑 Keywords</h2>
-                <p class="description">Add keywords to target (autocomplete enabled)</p>
+                <p class="description">Target these keywords in posts</p>
                 
                 <div class="quick-add">
                     <select id="groupSelect" class="btn-secondary" style="flex: 1;">
                         <option value="">All keywords</option>
                     </select>
                     <button onclick="filterByGroup()" class="btn-secondary">Filter</button>
+                    <button onclick="clearFilter()" class="btn-secondary">Clear</button>
                 </div>
 
                 <div class="keyword-input-container">
@@ -566,72 +600,69 @@
                     <button onclick="addKeyword()" class="btn-success">Add Keyword</button>
                 </div>
 
+                <div class="keyword-stats" style="display: flex; gap: 1rem; margin-bottom: 1rem; font-size: 0.9rem; color: #9ca3af;">
+                    <span>Total: <span id="totalKeywords">0</span></span>
+                    <span>Active: <span id="activeKeywords">0</span></span>
+                    <span>In Groups: <span id="groupedKeywords">0</span></span>
+                </div>
+
                 <div class="keyword-list" id="keywordList">
-                    {% for keyword in keywords %}
-                    <div class="keyword-item" data-keyword-id="{{ keyword.id }}" data-group="{{ keyword.group or '' }}">
-                        <div class="keyword-info">
-                            <span class="keyword-text">{{ keyword.keyword }}</span>
-                            {% if keyword.group %}
-                            <span class="keyword-group-badge">{{ keyword.group }}</span>
-                            {% endif %}
-                            <label class="switch">
-                                <input type="checkbox" 
-                                       onchange="toggleKeyword({{ keyword.id }}, this.checked)"
-                                       {{ 'checked' if keyword.active }}>
-                                <span class="slider round"></span>
-                            </label>
-                        </div>
-                        <button onclick="deleteKeyword({{ keyword.id }})" class="btn-small btn-danger">×</button>
-                    </div>
-                    {% endfor %}
+                    <!-- Keywords will be loaded from database -->
+                    <div class="empty-state">Loading keywords...</div>
                 </div>
             </div>
 
             <!-- Right Column -->
             <div class="card">
                 <h2>⚙️ Bot Configuration</h2>
-                <p class="description">Configure bot behavior</p>
+                <p class="description">Configure bot behavior and limits</p>
                 
                 <div class="configuration-form">
                     <div class="setting-item">
                         <label>Check Interval (seconds)</label>
-                        <input type="number" id="checkInterval" value="{{ config.CHECK_INTERVAL }}" min="300" step="60">
+                        <input type="number" id="checkInterval" min="300" step="60">
                         <small>How often to check for new posts (min 300s/5min)</small>
                     </div>
 
                     <div class="setting-item">
                         <label>Max Likes Per Day</label>
-                        <input type="number" id="maxLikes" value="{{ config.MAX_LIKES_PER_DAY }}" min="1" max="1000">
+                        <input type="number" id="maxLikes" min="1" max="1000">
                         <small>Daily like limit to avoid rate limiting</small>
                     </div>
 
                     <div class="setting-item">
                         <label>Max Likes Per User</label>
-                        <input type="number" id="likesPerUser" value="{{ config.MAX_LIKES_PER_USER }}" min="1" max="20">
+                        <input type="number" id="likesPerUser" min="1" max="20">
                         <small>Maximum likes per user per check</small>
                     </div>
 
                     <div class="setting-item">
                         <label>Delay Between Likes (seconds)</label>
                         <div class="range-inputs">
-                            <input type="number" id="delayMin" value="{{ config.LIKE_DELAY_MIN }}" min="5" max="300">
+                            <input type="number" id="delayMin" min="5" max="300">
                             <span>to</span>
-                            <input type="number" id="delayMax" value="{{ config.LIKE_DELAY_MAX }}" min="5" max="300">
+                            <input type="number" id="delayMax" min="5" max="300">
                         </div>
                         <small>Random delay between likes to appear natural</small>
                     </div>
 
                     <div class="setting-item">
                         <div class="checkbox-group">
-                            <input type="checkbox" id="autoFollow" {{ 'checked' if config.AUTO_FOLLOW }}>
+                            <input type="checkbox" id="autoFollow">
                             <label>Auto-follow users after liking</label>
                         </div>
                     </div>
 
                     <div class="setting-item">
                         <label>Max Follows Per Day</label>
-                        <input type="number" id="maxFollows" value="{{ config.MAX_FOLLOWS_PER_DAY }}" min="0" max="200">
+                        <input type="number" id="maxFollows" min="0" max="200">
                         <small>Daily follow limit (0 to disable auto-follow)</small>
+                    </div>
+
+                    <div class="setting-item">
+                        <label>Engagement Threshold</label>
+                        <input type="number" id="engagementThreshold" min="1" max="10" value="3">
+                        <small>Minimum score required to engage (1-10)</small>
                     </div>
 
                     <button onclick="saveSettings()" class="btn-primary">Save Configuration</button>
@@ -642,32 +673,144 @@
         </div>
     </div>
 
+    <!-- Confirmation Dialog (hidden by default) -->
+    <div id="confirmDialog" class="confirm-dialog" style="display: none;">
+        <h3 id="confirmTitle">Confirm Action</h3>
+        <p id="confirmMessage">Are you sure?</p>
+        <div class="confirm-dialog-buttons">
+            <button onclick="confirmAction(true)" class="btn-danger" id="confirmButton">Yes</button>
+            <button onclick="confirmAction(false)" class="btn-secondary">Cancel</button>
+        </div>
+    </div>
+    <div id="overlay" class="overlay" style="display: none;" onclick="confirmAction(false)"></div>
+
     <script>
-        // Common keywords for autocomplete
-        const commonKeywords = [
-            "music", "art", "tech", "programming", "coding", "developer", "design", 
-            "photography", "travel", "food", "cooking", "fitness", "sports", "gaming",
-            "movies", "books", "writing", "poetry", "nature", "science", "history",
-            "business", "marketing", "startup", "ai", "machine learning", "data",
-            "blockchain", "crypto", "nft", "web3", "sustainability", "climate",
-            "education", "learning", "tutorial", "guide", "tips", "advice",
-            "bikes", "cycling", "biking", "bicycle", "mountain bike", "road bike",
-            "commuting", "urban", "city", "architecture", "diy", "craft", "artisan"
-        ];
-
-        // Groups data
+        // State management
         let groups = [];
+        let keywords = [];
+        let pendingAction = null;
+        let commonKeywords = [];
 
-        // Load groups from localStorage or initialize
+        // Load all data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadConfiguration();
+            loadKeywords();
+            loadGroups();
+            loadCommonKeywords();
+        });
+
+        // Load bot configuration
+        function loadConfiguration() {
+            fetch('/api/configuration')
+                .then(res => res.json())
+                .then(config => {
+                    document.getElementById('checkInterval').value = config.CHECK_INTERVAL || 900;
+                    document.getElementById('maxLikes').value = config.MAX_LIKES_PER_DAY || 100;
+                    document.getElementById('likesPerUser').value = config.MAX_LIKES_PER_USER || 5;
+                    document.getElementById('delayMin').value = config.LIKE_DELAY_MIN || 10;
+                    document.getElementById('delayMax').value = config.LIKE_DELAY_MAX || 30;
+                    document.getElementById('autoFollow').checked = config.AUTO_FOLLOW || false;
+                    document.getElementById('maxFollows').value = config.MAX_FOLLOWS_PER_DAY || 50;
+                    document.getElementById('engagementThreshold').value = config.ENGAGEMENT_THRESHOLD || 3;
+                })
+                .catch(error => {
+                    console.error('Error loading configuration:', error);
+                    showStatus('Failed to load configuration', 'error');
+                });
+        }
+
+        // Load keywords from database
+        function loadKeywords() {
+            fetch('/api/keywords')
+                .then(res => res.json())
+                .then(data => {
+                    keywords = data;
+                    renderKeywords();
+                    updateKeywordStats();
+                })
+                .catch(error => {
+                    console.error('Error loading keywords:', error);
+                    document.getElementById('keywordList').innerHTML = 
+                        '<div class="empty-state">Failed to load keywords</div>';
+                });
+        }
+
+        // Load groups from database
         function loadGroups() {
-            const savedGroups = localStorage.getItem('keywordGroups');
-            if (savedGroups) {
-                groups = JSON.parse(savedGroups);
-            } else {
-                groups = ['Cycling', 'Tech', 'Art', 'Music'];
+            fetch('/api/keywords/groups')
+                .then(res => res.json())
+                .then(data => {
+                    groups = data;
+                    updateGroupSelects();
+                    renderGroups();
+                })
+                .catch(error => {
+                    console.error('Error loading groups:', error);
+                    groups = [];
+                });
+        }
+
+        // Load common keywords for autocomplete
+        function loadCommonKeywords() {
+            commonKeywords = [
+                "music", "art", "tech", "programming", "coding", "developer", "design", 
+                "photography", "travel", "food", "cooking", "fitness", "sports", "gaming",
+                "movies", "books", "writing", "poetry", "nature", "science", "history",
+                "business", "marketing", "startup", "ai", "machine learning", "data",
+                "blockchain", "crypto", "nft", "web3", "sustainability", "climate",
+                "education", "learning", "tutorial", "guide", "tips", "advice",
+                "bikes", "cycling", "biking", "bicycle", "mountain bike", "road bike",
+                "commuting", "urban", "city", "architecture", "diy", "craft", "artisan"
+            ];
+        }
+
+        // Render keywords in the list
+        function renderKeywords() {
+            const list = document.getElementById('keywordList');
+            
+            if (keywords.length === 0) {
+                list.innerHTML = '<div class="empty-state">No keywords added yet. Add your first keyword above!</div>';
+                return;
             }
-            updateGroupSelects();
-            renderGroups();
+
+            list.innerHTML = keywords.map(keyword => `
+                <div class="keyword-item" data-keyword-id="${keyword.id}" data-group="${keyword.group || ''}">
+                    <div class="keyword-info">
+                        <span class="keyword-text">${keyword.keyword}</span>
+                        ${keyword.group ? 
+                            `<span class="keyword-group-badge" onclick="filterByGroup('${keyword.group}')" style="cursor: pointer;">
+                                ${keyword.group}
+                            </span>` : 
+                            ''}
+                        <span class="suggestion-badge">
+                            ${keyword.posts_found || 0} posts
+                        </span>
+                        <label class="switch">
+                            <input type="checkbox" 
+                                   onchange="toggleKeyword(${keyword.id}, this.checked)"
+                                   ${keyword.active ? 'checked' : ''}>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div style="display: flex; gap: 0.25rem;">
+                        <button onclick="editKeywordGroup(${keyword.id}, '${keyword.group || ''}')" 
+                                class="btn-small btn-secondary" title="Change group">✎</button>
+                        <button onclick="confirmDeleteKeyword(${keyword.id})" 
+                                class="btn-small btn-danger">×</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update keyword statistics
+        function updateKeywordStats() {
+            const total = keywords.length;
+            const active = keywords.filter(k => k.active).length;
+            const grouped = keywords.filter(k => k.group).length;
+            
+            document.getElementById('totalKeywords').textContent = total;
+            document.getElementById('activeKeywords').textContent = active;
+            document.getElementById('groupedKeywords').textContent = grouped;
         }
 
         // Update group dropdowns
@@ -691,10 +834,19 @@
         // Render groups list
         function renderGroups() {
             const groupsList = document.getElementById('groupsList');
+            
+            if (groups.length === 0) {
+                groupsList.innerHTML = '<div style="color: #9ca3af;">No groups yet. Create your first group!</div>';
+                return;
+            }
+            
             groupsList.innerHTML = groups.map(group => `
                 <span class="group-tag" onclick="filterByGroup('${group}')">
                     ${group}
-                    <button class="delete-group" onclick="deleteGroup('${group}', event)">×</button>
+                    <span class="stats-badge">
+                        ${keywords.filter(k => k.group === group).length}
+                    </span>
+                    <button class="delete-group" onclick="confirmDeleteGroup('${group}', event)">×</button>
                 </span>
             `).join('');
         }
@@ -703,50 +855,93 @@
         function addGroup() {
             const input = document.getElementById('newGroupName');
             const groupName = input.value.trim();
-            if (groupName && !groups.includes(groupName)) {
-                groups.push(groupName);
-                localStorage.setItem('keywordGroups', JSON.stringify(groups));
-                updateGroupSelects();
-                renderGroups();
-                input.value = '';
-                showStatus('Group added successfully', 'success');
-            } else if (groups.includes(groupName)) {
-                showStatus('Group already exists', 'error');
+            
+            if (!groupName) {
+                showStatus('Please enter a group name', 'error');
+                return;
             }
+            
+            if (groups.includes(groupName)) {
+                showStatus('Group already exists', 'error');
+                return;
+            }
+
+            fetch('/api/keywords/groups', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name: groupName})
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    showStatus(data.error, 'error');
+                } else {
+                    groups.push(groupName);
+                    updateGroupSelects();
+                    renderGroups();
+                    input.value = '';
+                    showStatus('Group added successfully', 'success');
+                }
+            })
+            .catch(error => {
+                showStatus('Failed to add group', 'error');
+            });
         }
 
         // Delete group
-        function deleteGroup(groupName, event) {
+        function confirmDeleteGroup(groupName, event) {
             event.stopPropagation();
-            if (confirm(`Delete group "${groupName}"? Keywords will be ungrouped.`)) {
-                groups = groups.filter(g => g !== groupName);
-                localStorage.setItem('keywordGroups', JSON.stringify(groups));
-                updateGroupSelects();
-                renderGroups();
-                
-                // Update keyword displays
-                document.querySelectorAll('.keyword-item').forEach(item => {
-                    if (item.dataset.group === groupName) {
-                        item.dataset.group = '';
-                        const badge = item.querySelector('.keyword-group-badge');
-                        if (badge) badge.remove();
-                    }
-                });
-            }
+            showConfirmDialog(
+                'Delete Group',
+                `Delete group "${groupName}"? Keywords in this group will be ungrouped.`,
+                () => deleteGroup(groupName)
+            );
+        }
+
+        function deleteGroup(groupName) {
+            fetch(`/api/keywords/groups/${encodeURIComponent(groupName)}`, {
+                method: 'DELETE'
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    showStatus(data.error, 'error');
+                } else {
+                    groups = groups.filter(g => g !== groupName);
+                    updateGroupSelects();
+                    renderGroups();
+                    
+                    // Update keywords display
+                    keywords.forEach(k => {
+                        if (k.group === groupName) k.group = null;
+                    });
+                    renderKeywords();
+                    
+                    showStatus('Group deleted successfully', 'success');
+                }
+            })
+            .catch(error => {
+                showStatus('Failed to delete group', 'error');
+            });
         }
 
         // Filter keywords by group
         function filterByGroup(groupName = null) {
             const selectedGroup = groupName || document.getElementById('groupSelect').value;
-            const keywords = document.querySelectorAll('.keyword-item');
+            const keywordItems = document.querySelectorAll('.keyword-item');
             
-            keywords.forEach(item => {
+            keywordItems.forEach(item => {
                 if (!selectedGroup || item.dataset.group === selectedGroup) {
                     item.style.display = 'flex';
                 } else {
                     item.style.display = 'none';
                 }
             });
+        }
+
+        function clearFilter() {
+            document.getElementById('groupSelect').value = '';
+            filterByGroup('');
         }
 
         // Autocomplete functionality
@@ -785,13 +980,18 @@
             autocompleteList.classList.remove('show');
         }
 
-        // Add keyword with group
+        // Add keyword
         function addKeyword() {
-            const keyword = document.getElementById('newKeyword').value;
+            const keyword = document.getElementById('newKeyword').value.trim().toLowerCase();
             const group = document.getElementById('keywordGroupSelect').value;
             
             if (!keyword) {
                 showStatus('Please enter a keyword', 'error');
+                return;
+            }
+            
+            if (keywords.some(k => k.keyword === keyword)) {
+                showStatus('Keyword already exists', 'error');
                 return;
             }
             
@@ -808,20 +1008,90 @@
                 if (data.error) {
                     showStatus(data.error, 'error');
                 } else {
-                    location.reload();
+                    // Reload keywords
+                    loadKeywords();
+                    document.getElementById('newKeyword').value = '';
+                    showStatus('Keyword added successfully', 'success');
                 }
+            })
+            .catch(error => {
+                showStatus('Failed to add keyword', 'error');
+            });
+        }
+
+        // Edit keyword group
+        function editKeywordGroup(keywordId, currentGroup) {
+            const newGroup = prompt('Enter new group name (or leave empty for no group):', currentGroup || '');
+            if (newGroup !== null) {
+                fetch(`/api/keywords/${keywordId}/group`, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({group: newGroup || null})
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) {
+                        showStatus(data.error, 'error');
+                    } else {
+                        loadKeywords();
+                        loadGroups();
+                        showStatus('Keyword group updated', 'success');
+                    }
+                });
+            }
+        }
+
+        // Toggle keyword active state
+        function toggleKeyword(id, active) {
+            fetch(`/api/keywords/${id}`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({active: active})
+            })
+            .then(() => {
+                updateKeywordStats();
+            })
+            .catch(error => {
+                showStatus('Failed to update keyword', 'error');
+            });
+        }
+
+        // Confirm delete keyword
+        function confirmDeleteKeyword(id) {
+            showConfirmDialog(
+                'Delete Keyword',
+                'Are you sure you want to delete this keyword?',
+                () => deleteKeyword(id)
+            );
+        }
+
+        // Delete keyword
+        function deleteKeyword(id) {
+            fetch(`/api/keywords/${id}`, {
+                method: 'DELETE'
+            })
+            .then(() => {
+                keywords = keywords.filter(k => k.id !== id);
+                renderKeywords();
+                updateKeywordStats();
+                showStatus('Keyword deleted', 'success');
+            })
+            .catch(error => {
+                showStatus('Failed to delete keyword', 'error');
             });
         }
 
         // Save credentials and restart bot
         function saveCredentials() {
-            const handle = document.getElementById('blueskyHandle').value;
+            const handle = document.getElementById('blueskyHandle').value.trim();
             const password = document.getElementById('blueskyPassword').value;
             
             if (!handle || !password) {
                 showStatus('Please enter both handle and password', 'error');
                 return;
             }
+
+            showStatus('Saving credentials...', 'warning');
 
             fetch('/api/credentials', {
                 method: 'POST',
@@ -838,30 +1108,45 @@
                 } else {
                     showStatus('Credentials saved! Restarting bot...', 'warning');
                     setTimeout(() => {
-                        // Trigger bot restart
-                        fetch('/api/bot/restart', {method: 'POST'});
-                        setTimeout(() => location.reload(), 2000);
+                        fetch('/api/bot/restart', {method: 'POST'})
+                            .then(() => {
+                                setTimeout(() => {
+                                    showStatus('Bot restarted successfully!', 'success');
+                                }, 2000);
+                            });
                     }, 1000);
                 }
+            })
+            .catch(error => {
+                showStatus('Failed to save credentials', 'error');
             });
         }
 
         // Save bot configuration
         function saveSettings() {
-            const configuration = {
-                check_interval: document.getElementById('checkInterval').value,
-                max_likes_per_day: document.getElementById('maxLikes').value,
-                max_likes_per_user: document.getElementById('likesPerUser').value,
-                like_delay_min: document.getElementById('delayMin').value,
-                like_delay_max: document.getElementById('delayMax').value,
+            const config = {
+                check_interval: parseInt(document.getElementById('checkInterval').value),
+                max_likes_per_day: parseInt(document.getElementById('maxLikes').value),
+                max_likes_per_user: parseInt(document.getElementById('likesPerUser').value),
+                like_delay_min: parseInt(document.getElementById('delayMin').value),
+                like_delay_max: parseInt(document.getElementById('delayMax').value),
                 auto_follow: document.getElementById('autoFollow').checked,
-                max_follows_per_day: document.getElementById('maxFollows').value
+                max_follows_per_day: parseInt(document.getElementById('maxFollows').value),
+                engagement_threshold: parseInt(document.getElementById('engagementThreshold').value)
             };
+
+            // Validate
+            if (config.like_delay_min >= config.like_delay_max) {
+                showStatus('Min delay must be less than max delay', 'error');
+                return;
+            }
+
+            showStatus('Saving configuration...', 'warning');
 
             fetch('/api/configuration', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(configuration)
+                body: JSON.stringify(config)
             })
             .then(response => response.json())
             .then(data => {
@@ -870,26 +1155,29 @@
                 } else {
                     showStatus('Configuration saved successfully!', 'success');
                 }
+            })
+            .catch(error => {
+                showStatus('Failed to save configuration', 'error');
             });
         }
 
-        // Toggle keyword active state
-        function toggleKeyword(id, active) {
-            fetch(`/api/keywords/${id}`, {
-                method: 'PUT',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({active: active})
-            });
+        // Confirmation dialog
+        function showConfirmDialog(title, message, onConfirm) {
+            document.getElementById('confirmTitle').textContent = title;
+            document.getElementById('confirmMessage').textContent = message;
+            pendingAction = onConfirm;
+            document.getElementById('confirmDialog').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
         }
 
-        // Delete keyword
-        function deleteKeyword(id) {
-            if (confirm('Are you sure you want to delete this keyword?')) {
-                fetch(`/api/keywords/${id}`, {
-                    method: 'DELETE'
-                })
-                .then(() => location.reload());
+        function confirmAction(confirmed) {
+            document.getElementById('confirmDialog').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+            
+            if (confirmed && pendingAction) {
+                pendingAction();
             }
+            pendingAction = null;
         }
 
         // Show status message
@@ -899,21 +1187,9 @@
             statusEl.className = `status-message ${type}`;
             
             setTimeout(() => {
-                statusEl.classList.remove('success', 'error', 'warning');
                 statusEl.style.display = 'none';
             }, 5000);
         }
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            loadGroups();
-        });
-
-        // Override form submission
-        document.getElementById('keywordForm').onsubmit = function(e) {
-            e.preventDefault();
-            addKeyword();
-        };
     </script>
 </body>
 </html>

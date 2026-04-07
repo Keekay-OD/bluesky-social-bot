@@ -36,6 +36,12 @@ def index():
     bot_status = db.get_bot_status()
     recent_likes = db.get_recent_likes(10)
     followed_today = db.get_followed_count_today()
+    
+    # Get additional stats for better analytics
+    total_followed = db.get_followed_total()
+    total_follow_backs = db.get_follow_backs_total()
+    follow_back_rate = round((total_follow_backs / total_followed * 100) if total_followed > 0 else 0, 1)
+    
     config_dict = {
         'MAX_LIKES_PER_DAY': Config.MAX_LIKES_PER_DAY,
         'MAX_FOLLOWS_PER_DAY': Config.MAX_FOLLOWS_PER_DAY,
@@ -47,6 +53,9 @@ def index():
                          recent_likes=recent_likes,
                          followed_today=followed_today,
                          config=config_dict,
+                         total_followed=total_followed,
+                         total_follow_backs=total_follow_backs,
+                         follow_back_rate=follow_back_rate,
                          now=datetime.now())
 
 @app.route('/api/bot/pause', methods=['POST'])
@@ -138,13 +147,25 @@ def delete_keyword(keyword_id):
 
 @app.route('/api/keywords/performance', methods=['GET'])
 def keywords_performance():
-    """Get keyword performance data"""
+    """Get keyword performance data with actual metrics"""
     keywords = db.get_all_keywords()
     
-    # Enhance with performance metrics
+    # Get performance metrics from database
+    keyword_stats = db.get_keyword_performance()
+    
+    # Create a map of keyword to stats
+    stats_map = {stat['keyword']: stat for stat in keyword_stats}
+    
+    # Enhance keywords with performance metrics
     for keyword in keywords:
-        # Count posts found for this keyword (you'll need to implement this)
-        keyword['posts_found'] = 0
+        kw_text = keyword['keyword']
+        if kw_text in stats_map:
+            keyword['engagements'] = stats_map[kw_text].get('engagements', 0)
+            keyword['follows'] = stats_map[kw_text].get('follows', 0)
+        else:
+            keyword['engagements'] = 0
+            keyword['follows'] = 0
+        keyword['posts_found'] = keyword['engagements']
         keyword['active'] = bool(keyword.get('active', True))
     
     return jsonify(keywords)
@@ -161,20 +182,33 @@ def start_bot():
 @app.route('/api/bot/stop', methods=['POST'])
 def stop_bot():
     """Stop the bot"""
-    bot.stop()
-    return jsonify({'message': 'Bot stopped', 'status': 'stopped'})
+    try:
+        bot.stop()
+        # Verify bot stopped
+        time.sleep(1)
+        if not bot.is_running():
+            return jsonify({'message': 'Bot stopped', 'status': 'stopped'})
+        else:
+            return jsonify({'message': 'Bot stop initiated', 'status': 'stopping'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/bot/status', methods=['GET'])
 def bot_status():
     """Get bot status"""
     status = db.get_bot_status()
+    # Add actual running status
+    status['actually_running'] = bot.is_running()
     return jsonify(status)
 
 @app.route('/api/bot/run-now', methods=['POST'])
 def run_now():
     """Run bot immediately (in background)"""
     def run_bot():
-        bot.run_once()
+        try:
+            bot.run_once()
+        except Exception as e:
+            print(f"Error in run_now: {e}")
     
     thread = threading.Thread(target=run_bot)
     thread.daemon = True
@@ -185,7 +219,7 @@ def run_now():
 # Follower Tracking API Routes
 @app.route('/api/followers/activity', methods=['GET'])
 def follower_activity():
-    """Get follower activity feed"""
+    """Get follower activity feed with avatars and readable dates"""
     activity = db.get_follower_activity(limit=20)
     
     # Get follow backs
@@ -198,12 +232,23 @@ def follower_activity():
             'user_handle': item['handle'],
             'user_display_name': item.get('display_name'),
             'followed_at': item['timestamp'],
-            'type': item['type']
+            'type': item['type'],
+            'avatar': item.get('avatar')  # Add avatar if available
+        })
+    
+    # Format follow backs
+    formatted_follow_backs = []
+    for fb in follow_backs:
+        formatted_follow_backs.append({
+            'user_handle': fb['handle'],
+            'user_display_name': fb.get('display_name'),
+            'followed_back_at': fb['followed_back_at'],
+            'avatar': fb.get('avatar')
         })
     
     return jsonify({
         'follows': formatted_activity,
-        'follow_backs': follow_backs
+        'follow_backs': formatted_follow_backs
     })
 
 @app.route('/api/unfollowers', methods=['GET'])
@@ -218,7 +263,8 @@ def unfollowers():
         formatted.append({
             'user_handle': u['handle'],
             'user_display_name': u.get('display_name'),
-            'unfollowed_at': u['unfollowed_at']
+            'unfollowed_at': u['unfollowed_at'],
+            'avatar': u.get('avatar')
         })
     
     return jsonify(formatted)
@@ -229,7 +275,7 @@ def today_stats():
     stats = db.get_today_stats()
     
     # Get follow backs count
-    follow_backs_today = db.get_follow_backs_today()
+    follow_backs_today = db.get_follow_backs_count_today()
     
     # Format response to match what the dashboard expects
     response = {
@@ -283,10 +329,22 @@ def sync_followers():
 
 @app.route('/api/discovered-content', methods=['GET'])
 def discovered_content():
-    """Get recently discovered posts"""
-    # You'll need to implement a method to track discovered posts
-    # For now, return empty list
-    return jsonify({'posts': []})
+    """Get recently discovered posts with avatars"""
+    posts = db.get_discovered_content(limit=20)
+    
+    # Format posts with avatar and readable dates
+    formatted_posts = []
+    for post in posts:
+        formatted_posts.append({
+            'uri': post['uri'],
+            'author_handle': post.get('author_handle', 'unknown'),
+            'author_display_name': post.get('author_display_name'),
+            'author_avatar': post.get('author_avatar'),
+            'text': post.get('text', ''),
+            'discovered_at': post.get('discovered_at')
+        })
+    
+    return jsonify({'posts': formatted_posts})
 
 @app.route('/api/post/<path:post_uri>', methods=['GET'])
 def post_details(post_uri):
@@ -307,6 +365,7 @@ def post_details(post_uri):
                 'uri': post['uri'],
                 'author_handle': post['user_handle'],
                 'author_display_name': post_data.get('author_display_name'),
+                'author_avatar': post_data.get('author_avatar'),
                 'text': post_data.get('text', ''),
                 'created_at': post['liked_at']
             })
@@ -344,6 +403,7 @@ def get_followed_users():
             'did': user['did'],
             'handle': user['handle'],
             'display_name': user.get('display_name'),
+            'avatar': user.get('avatar'),
             'followed_at': user['followed_at'],
             'is_following_us': user.get('is_following_us', False)
         })
@@ -364,6 +424,7 @@ def get_recent_likes():
             'uri': like['uri'],
             'user_handle': like['user_handle'],
             'user_display_name': post_data.get('author_display_name'),
+            'user_avatar': post_data.get('author_avatar'),
             'liked_at': like['liked_at'],
             'post_data': post_data
         })
@@ -416,6 +477,59 @@ def restart_bot():
             return jsonify({'error': 'Failed to login with new credentials'}), 500
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+@app.route('/api/configuration', methods=['GET'])
+def get_settings():
+    """Get current bot settings"""
+    settings = {
+        'CHECK_INTERVAL': Config.CHECK_INTERVAL,
+        'MAX_LIKES_PER_DAY': Config.MAX_LIKES_PER_DAY,
+        'MAX_LIKES_PER_USER': Config.MAX_LIKES_PER_USER,
+        'LIKE_DELAY_MIN': Config.LIKE_DELAY_MIN,
+        'LIKE_DELAY_MAX': Config.LIKE_DELAY_MAX,
+        'AUTO_FOLLOW': Config.AUTO_FOLLOW,
+        'MAX_FOLLOWS_PER_DAY': Config.MAX_FOLLOWS_PER_DAY,
+        'ENGAGEMENT_THRESHOLD': getattr(Config, 'ENGAGEMENT_THRESHOLD', 3)
+    }
+    return jsonify(settings)
+
+@app.route('/api/keywords/groups', methods=['GET'])
+def get_keyword_groups():
+    """Get all keyword groups"""
+    groups = db.get_all_groups()
+    return jsonify(groups)
+
+@app.route('/api/keywords/groups', methods=['POST'])
+def add_keyword_group():
+    """Add a new keyword group"""
+    data = request.json
+    group_name = data.get('name', '').strip()
+    
+    if not group_name:
+        return jsonify({'error': 'Group name required'}), 400
+    
+    # Groups are just metadata on keywords, so we don't need to store them separately
+    # Just return success
+    return jsonify({'message': 'Group added', 'name': group_name})
+
+@app.route('/api/keywords/groups/<path:group_name>', methods=['DELETE'])
+def delete_keyword_group(group_name):
+    """Delete a keyword group (removes group from all keywords)"""
+    # Remove this group from all keywords
+    with db.get_cursor() as c:
+        c.execute("UPDATE keywords SET group_name = NULL WHERE group_name = ?", (group_name,))
+    
+    return jsonify({'message': 'Group deleted'})
+
+@app.route('/api/keywords/<int:keyword_id>/group', methods=['PUT'])
+def update_keyword_group(keyword_id):
+    """Update a keyword's group"""
+    data = request.json
+    group = data.get('group')
+    
+    db.update_keyword_group(keyword_id, group)
+    
+    return jsonify({'message': 'Keyword group updated'})
 
 @app.route('/api/configuration', methods=['POST'])
 def update_settings():

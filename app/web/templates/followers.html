@@ -919,12 +919,13 @@
             <div class="users-header">
                 <h3>People You Follow</h3>
                 <div class="selection-actions">
-                    <button class="btn btn-secondary" onclick="selectAll()">Select All</button>
+                    <button class="btn btn-secondary" onclick="selectAll()">Select Page</button>
                     <button class="btn btn-secondary" onclick="selectNonFollowers()">Select Non-Followers</button>
                     <button class="btn btn-secondary" onclick="clearSelection()">Clear</button>
                     <button class="btn btn-success" onclick="whitelistSelected()" id="whitelistSelectedBtn" disabled>
                         <span>⭐</span> Whitelist Selected
                     </button>
+                    <button class="btn btn-secondary" onclick="selectAllFiltered()">Select All (Filtered)</button>
                     <button class="btn btn-danger" onclick="unfollowSelected()" id="unfollowSelectedBtn" disabled>
                         <span>🚫</span> Unfollow Selected
                     </button>
@@ -1089,7 +1090,11 @@
             updatePaginationInfo();
             updateSelectedCount();
         }
-
+        function getCurrentPageUsers() {
+            const start = (currentPage - 1) * pageSize;
+            const end = Math.min(start + pageSize, filteredUsers.length);
+            return filteredUsers.slice(start, end);
+        }
         // Render users grid
         function renderUsers(users) {
             const grid = document.getElementById('usersGrid');
@@ -1197,7 +1202,12 @@
             currentPage = page;
             renderPaginatedUsers();
         }
-
+        function selectAllFiltered() {
+            filteredUsers.forEach(user => {
+                selectedUsers.add(user.did);
+            });
+            renderPaginatedUsers();
+        }
         // Selection handling
         function toggleUser(did, selected) {
             if (selected) {
@@ -1209,13 +1219,16 @@
         }
 
         function selectAll() {
-            filteredUsers.forEach(user => selectedUsers.add(user.did));
+            getCurrentPageUsers().forEach(user => {
+                selectedUsers.add(user.did);
+            });
             renderPaginatedUsers();
         }
-
         function selectNonFollowers() {
-            filteredUsers.forEach(user => {
-                if (!user.follows_you) selectedUsers.add(user.did);
+            getCurrentPageUsers().forEach(user => {
+                if (!user.follows_you) {
+                    selectedUsers.add(user.did);
+                }
             });
             renderPaginatedUsers();
         }
