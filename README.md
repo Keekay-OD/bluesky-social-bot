@@ -1,4 +1,4 @@
-# Bluesky Social Bot 🤖
+# Bluesky Follow Bot 🤖
 
 A sophisticated automation bot for Bluesky Social that helps you engage with your community by automatically liking and following users based on keywords. Perfect for community managers, content creators, and anyone looking to grow their presence on Bluesky.
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Donate-orange?style=for-the-badge&logo=buy-me-a-coffee&logoColor=white)](https://buymeacoffee.com/keekay)
